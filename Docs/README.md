@@ -617,5 +617,5 @@ For technical support or questions:
 
 **Version**: 1.0.0  
 **Last Updated**: January 2024  
-**Expo SDK**: 52.0.30  
-**React Native**: 0.76.5
+**Expo SDK**: 53.0.12  
+**React Native**: 0.79.4
