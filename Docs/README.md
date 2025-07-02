@@ -601,21 +601,14 @@ if (DEBUG) {
 - Pruebas manuales en iOS, Android y Web
 - Pruebas de rendimiento para operaciones de cámara
 
-## 📄 Licencia
-
-Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
-
-## 📞 Soporte
-
-Para soporte técnico o preguntas:
-- **Email**: soporte@qrscanner.com
-- **Teléfono**: +1 (555) 123-4567
-- **Documentación**: [Wiki del Proyecto](link-to-wiki)
-- **Issues**: [GitHub Issues](link-to-issues)
-
 ---
 
-**Versión**: 1.0.0  
-**Última Actualización**: Enero 2024  
-**Expo SDK**: 52.0.30  
-**React Native**: 0.76.5
+**Version**: 1.0.0  
+**Expo SDK**: 53.0.12  
+**React Native**: 0.79.4
+=======
+---
+
+**Version**: 1.0.0  
+**Expo SDK**: 53.0.12  
+**React Native**: 0.79.4
