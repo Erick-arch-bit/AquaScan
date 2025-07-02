@@ -1,27 +1,27 @@
-# API Documentation
+# Documentación de API
 
-## Overview
+## Visión General
 
-This document describes the API endpoints and data structures used by the QR Scanner Event Checker App. The application currently uses a combination of real authentication endpoints and mock data for development purposes.
+Este documento describe los endpoints de API y estructuras de datos utilizadas por la Aplicación QR Scanner Event Checker. La aplicación actualmente utiliza una combinación de endpoints de autenticación reales y datos simulados para propósitos de desarrollo.
 
-## Base Configuration
+## Configuración Base
 
-### Production API
-- **Base URL**: `https://api.xolotlcl.com/api`
-- **Authentication**: Bearer Token
+### API de Producción
+- **URL Base**: `https://api.xolotlcl.com/api`
+- **Autenticación**: Bearer Token
 - **Content-Type**: `application/json`
 
-### Development Mode
-The app uses mock data with simulated network delays for development and testing purposes.
+### Modo de Desarrollo
+La aplicación utiliza datos simulados con retrasos de red simulados para desarrollo y pruebas.
 
-## Authentication Endpoints
+## Endpoints de Autenticación
 
 ### Login
-Authenticate user and receive access token.
+Autenticar usuario y recibir token de acceso.
 
 **Endpoint**: `POST /loginXcl`
 
-**Request Body**:
+**Cuerpo de Solicitud**:
 ```json
 {
   "email": "user@example.com",
@@ -29,24 +29,24 @@ Authenticate user and receive access token.
 }
 ```
 
-**Response Success** (200):
+**Respuesta Exitosa** (200):
 ```json
 {
   "status": 1,
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "message": "Login successful"
+  "message": "Login exitoso"
 }
 ```
 
-**Response Error** (401):
+**Respuesta de Error** (401):
 ```json
 {
   "status": 0,
-  "message": "Invalid credentials"
+  "message": "Credenciales inválidas"
 }
 ```
 
-**Implementation**:
+**Implementación**:
 ```typescript
 const response = await fetch(`${API_URL}/loginXcl`, {
   method: 'POST',
@@ -60,33 +60,33 @@ const data = await response.json();
 ```
 
 ### Logout
-Invalidate current session token.
+Invalidar token de sesión actual.
 
 **Endpoint**: `POST /logoutXcl`
 
-**Headers**:
+**Encabezados**:
 ```
 Authorization: Bearer <access_token>
 Content-Type: application/json
 ```
 
-**Response Success** (200):
+**Respuesta Exitosa** (200):
 ```json
 {
   "status": 1,
-  "msg": "Logout successful"
+  "msg": "Logout exitoso"
 }
 ```
 
-**Response Error** (401):
+**Respuesta de Error** (401):
 ```json
 {
   "status": 0,
-  "msg": "Invalid token"
+  "msg": "Token inválido"
 }
 ```
 
-**Implementation**:
+**Implementación**:
 ```typescript
 const response = await fetch(`${API_URL}/logoutXcl`, {
   method: 'POST',
@@ -97,16 +97,16 @@ const response = await fetch(`${API_URL}/logoutXcl`, {
 });
 ```
 
-## Mock Data Endpoints
+## Endpoints de Datos Simulados
 
-The following endpoints are currently implemented using mock data with realistic response times and data structures.
+Los siguientes endpoints están actualmente implementados usando datos simulados con tiempos de respuesta realistas y estructuras de datos.
 
-### Get Venue Capacity
-Retrieve current venue occupancy information.
+### Obtener Capacidad del Venue
+Recuperar información actual de ocupación del venue.
 
-**Mock Endpoint**: `ApiService.getVenueCapacity()`
+**Endpoint Simulado**: `ApiService.getVenueCapacity()`
 
-**Response**:
+**Respuesta**:
 ```json
 {
   "current": 375,
@@ -115,27 +115,27 @@ Retrieve current venue occupancy information.
 }
 ```
 
-**Data Model**:
+**Modelo de Datos**:
 ```typescript
 interface VenueCapacity {
-  current: number;    // Current number of people in venue
-  max: number;        // Maximum venue capacity
-  percentage: number; // Occupancy percentage (0-100)
+  current: number;    // Número actual de personas en el venue
+  max: number;        // Capacidad máxima del venue
+  percentage: number; // Porcentaje de ocupación (0-100)
 }
 ```
 
-**Usage**:
+**Uso**:
 ```typescript
 const capacity = await ApiService.getVenueCapacity();
-console.log(`Venue is ${capacity.percentage}% full`);
+console.log(`El venue está ${capacity.percentage}% lleno`);
 ```
 
-### Get Checkers Summary
-Retrieve performance summary for all checkers.
+### Obtener Resumen de Verificadores
+Recuperar resumen de rendimiento para todos los verificadores.
 
-**Mock Endpoint**: `ApiService.getCheckersSummary()`
+**Endpoint Simulado**: `ApiService.getCheckersSummary()`
 
-**Response**:
+**Respuesta**:
 ```json
 [
   {
@@ -155,29 +155,29 @@ Retrieve performance summary for all checkers.
 ]
 ```
 
-**Data Model**:
+**Modelo de Datos**:
 ```typescript
 interface CheckerData {
   id: string;
   name: string;
-  scanned: number;    // Total QR codes scanned
-  verified: number;   // Successfully verified wristbands
-  rejected: number;   // Rejected/invalid scans
+  scanned: number;    // Total de códigos QR escaneados
+  verified: number;   // Brazaletes verificados exitosamente
+  rejected: number;   // Escaneos rechazados/inválidos
 }
 ```
 
-**Usage**:
+**Uso**:
 ```typescript
 const checkers = await ApiService.getCheckersSummary();
 const totalScanned = checkers.reduce((sum, checker) => sum + checker.scanned, 0);
 ```
 
-### Get Wristbands
-Retrieve list of all wristbands with their current status.
+### Obtener Brazaletes
+Recuperar lista de todos los brazaletes con su estado actual.
 
-**Mock Endpoint**: `ApiService.getWristbands()`
+**Endpoint Simulado**: `ApiService.getWristbands()`
 
-**Response**:
+**Respuesta**:
 ```json
 [
   {
@@ -200,37 +200,37 @@ Retrieve list of all wristbands with their current status.
 ]
 ```
 
-**Data Model**:
+**Modelo de Datos**:
 ```typescript
 interface Wristband {
-  id: string;                                    // Unique wristband identifier
-  name: string;                                  // Wristband type/category
-  status: 'verified' | 'pending' | 'rejected';  // Current status
-  verifiedAt?: string;                           // ISO timestamp of verification
-  verifiedBy?: string;                           // Name of verifying checker
+  id: string;                                    // Identificador único del brazalete
+  name: string;                                  // Tipo/categoría del brazalete
+  status: 'verified' | 'pending' | 'rejected';  // Estado actual
+  verifiedAt?: string;                           // Timestamp ISO de verificación
+  verifiedBy?: string;                           // Nombre del verificador
 }
 ```
 
-**Status Values**:
-- `verified`: Wristband has been successfully scanned and verified
-- `pending`: Wristband has not been scanned yet
-- `rejected`: Wristband was scanned but verification failed
+**Valores de Estado**:
+- `verified`: El brazalete ha sido escaneado y verificado exitosamente
+- `pending`: El brazalete aún no ha sido escaneado
+- `rejected`: El brazalete fue escaneado pero la verificación falló
 
-**Usage**:
+**Uso**:
 ```typescript
 const wristbands = await ApiService.getWristbands();
 const verifiedCount = wristbands.filter(w => w.status === 'verified').length;
 ```
 
-### Verify Wristband
-Verify a wristband using its QR code.
+### Verificar Brazalete
+Verificar un brazalete usando su código QR.
 
-**Mock Endpoint**: `ApiService.verifyWristband(qrCode: string)`
+**Endpoint Simulado**: `ApiService.verifyWristband(qrCode: string)`
 
-**Parameters**:
-- `qrCode` (string): The QR code data scanned from the wristband
+**Parámetros**:
+- `qrCode` (string): Los datos del código QR escaneados del brazalete
 
-**Response Success**:
+**Respuesta Exitosa**:
 ```json
 {
   "valid": true,
@@ -238,7 +238,7 @@ Verify a wristband using its QR code.
 }
 ```
 
-**Response Error**:
+**Respuesta de Error**:
 ```json
 {
   "valid": false,
@@ -246,7 +246,7 @@ Verify a wristband using its QR code.
 }
 ```
 
-**Data Model**:
+**Modelo de Datos**:
 ```typescript
 interface VerificationResult {
   valid: boolean;
@@ -254,20 +254,20 @@ interface VerificationResult {
 }
 ```
 
-**Validation Logic**:
+**Lógica de Validación**:
 ```typescript
-// Mock validation rules
+// Reglas de validación simuladas
 const isValid = qrCode && !qrCode.includes('invalid');
 
-// Real implementation would check:
-// - QR code format
-// - Database lookup
-// - Duplicate scan prevention
-// - Event validity
-// - Time restrictions
+// La implementación real verificaría:
+// - Formato del código QR
+// - Búsqueda en base de datos
+// - Prevención de escaneos duplicados
+// - Validez del evento
+// - Restricciones de tiempo
 ```
 
-**Usage**:
+**Uso**:
 ```typescript
 const result = await ApiService.verifyWristband('WB-123456');
 if (result.valid) {
@@ -277,31 +277,31 @@ if (result.valid) {
 }
 ```
 
-### Update Wristband Status
-Update the status of a specific wristband.
+### Actualizar Estado de Brazalete
+Actualizar el estado de un brazalete específico.
 
-**Mock Endpoint**: `ApiService.updateWristbandStatus(wristbandId: string, status: string)`
+**Endpoint Simulado**: `ApiService.updateWristbandStatus(wristbandId: string, status: string)`
 
-**Parameters**:
-- `wristbandId` (string): Unique identifier of the wristband
-- `status` (string): New status ('verified', 'pending', 'rejected')
+**Parámetros**:
+- `wristbandId` (string): Identificador único del brazalete
+- `status` (string): Nuevo estado ('verified', 'pending', 'rejected')
 
-**Response Success**:
+**Respuesta Exitosa**:
 ```json
 {
   "success": true
 }
 ```
 
-**Response Error**:
+**Respuesta de Error**:
 ```json
 {
   "success": false,
-  "error": "Wristband not found"
+  "error": "Brazalete no encontrado"
 }
 ```
 
-**Usage**:
+**Uso**:
 ```typescript
 const result = await ApiService.updateWristbandStatus('WB-123456', 'verified');
 if (result.success) {
@@ -309,28 +309,28 @@ if (result.success) {
 }
 ```
 
-## Error Handling
+## Manejo de Errores
 
-### HTTP Status Codes
-- `200`: Success
-- `400`: Bad Request (invalid parameters)
-- `401`: Unauthorized (invalid or expired token)
-- `403`: Forbidden (insufficient permissions)
-- `404`: Not Found (resource doesn't exist)
-- `500`: Internal Server Error
+### Códigos de Estado HTTP
+- `200`: Éxito
+- `400`: Solicitud Incorrecta (parámetros inválidos)
+- `401`: No Autorizado (token inválido o expirado)
+- `403`: Prohibido (permisos insuficientes)
+- `404`: No Encontrado (recurso no existe)
+- `500`: Error Interno del Servidor
 
-### Error Response Format
+### Formato de Respuesta de Error
 ```json
 {
   "error": {
     "code": "INVALID_CREDENTIALS",
-    "message": "The provided credentials are invalid",
-    "details": "Email or password is incorrect"
+    "message": "Las credenciales proporcionadas son inválidas",
+    "details": "El email o contraseña es incorrecto"
   }
 }
 ```
 
-### Client-Side Error Handling
+### Manejo de Errores del Lado del Cliente
 ```typescript
 const handleApiError = (error: Error): string => {
   if (error.message.includes('network')) {
@@ -345,14 +345,14 @@ const handleApiError = (error: Error): string => {
 };
 ```
 
-## Authentication Flow
+## Flujo de Autenticación
 
-### Token Management
+### Gestión de Tokens
 ```typescript
 class AuthService {
   private static token: string | null = null;
   
-  // Store token after successful login
+  // Almacenar token después de login exitoso
   static async storeToken(token: string): Promise<void> {
     this.token = token;
     if (Platform.OS === 'web') {
@@ -362,7 +362,7 @@ class AuthService {
     }
   }
   
-  // Get token for API requests
+  // Obtener token para solicitudes API
   static async getToken(): Promise<string | null> {
     if (this.token) return this.token;
     
@@ -375,7 +375,7 @@ class AuthService {
     return this.token;
   }
   
-  // Clear token on logout
+  // Limpiar token al cerrar sesión
   static async clearToken(): Promise<void> {
     this.token = null;
     if (Platform.OS === 'web') {
@@ -387,7 +387,7 @@ class AuthService {
 }
 ```
 
-### Authenticated Requests
+### Solicitudes Autenticadas
 ```typescript
 static async authenticatedRequest(
   endpoint: string,
@@ -406,68 +406,68 @@ static async authenticatedRequest(
 }
 ```
 
-## Rate Limiting
+## Limitación de Velocidad
 
-### Current Limits
-- **Login attempts**: 5 per minute per IP
-- **API requests**: 100 per minute per authenticated user
-- **QR verification**: 30 per minute per user
+### Límites Actuales
+- **Intentos de login**: 5 por minuto por IP
+- **Solicitudes API**: 100 por minuto por usuario autenticado
+- **Verificación QR**: 30 por minuto por usuario
 
-### Rate Limit Headers
+### Encabezados de Límite de Velocidad
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
 X-RateLimit-Reset: 1640995200
 ```
 
-### Handling Rate Limits
+### Manejo de Límites de Velocidad
 ```typescript
 const handleRateLimit = (response: Response) => {
   if (response.status === 429) {
     const resetTime = response.headers.get('X-RateLimit-Reset');
     const waitTime = resetTime ? parseInt(resetTime) - Date.now() / 1000 : 60;
     
-    throw new Error(`Rate limit exceeded. Try again in ${waitTime} seconds.`);
+    throw new Error(`Límite de velocidad excedido. Intente de nuevo en ${waitTime} segundos.`);
   }
 };
 ```
 
-## Data Validation
+## Validación de Datos
 
-### Input Validation
+### Validación de Entrada
 ```typescript
-// Email validation
+// Validación de email
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
-// QR code validation
+// Validación de código QR
 const validateQRCode = (code: string): boolean => {
-  // Check format: WB-XXXXXX
+  // Verificar formato: WB-XXXXXX
   const qrRegex = /^WB-[A-Z0-9]{6}$/;
   return qrRegex.test(code);
 };
 
-// Password validation
+// Validación de contraseña
 const validatePassword = (password: string): boolean => {
   return password.length >= 8;
 };
 ```
 
-### Request Sanitization
+### Sanitización de Solicitudes
 ```typescript
 const sanitizeInput = (input: string): string => {
   return input
     .trim()
-    .replace(/[<>]/g, '') // Remove potential HTML tags
-    .substring(0, 1000);   // Limit length
+    .replace(/[<>]/g, '') // Remover posibles etiquetas HTML
+    .substring(0, 1000);   // Limitar longitud
 };
 ```
 
-## Mock Data Configuration
+## Configuración de Datos Simulados
 
-### Development Setup
+### Configuración de Desarrollo
 ```typescript
 const MOCK_DATA = {
   capacity: {
@@ -490,34 +490,34 @@ const MOCK_DATA = {
       verifiedAt: new Date().toISOString(),
       verifiedBy: 'Juan Pérez' 
     },
-    // ... more wristbands
+    // ... más brazaletes
   ]
 };
 ```
 
-### Network Simulation
+### Simulación de Red
 ```typescript
 private static async mockRequest<T>(data: T): Promise<T> {
-  // Simulate network delay (300ms - 800ms)
+  // Simular retraso de red (300ms - 800ms)
   const delay = Math.random() * 500 + 300;
   await new Promise(resolve => setTimeout(resolve, delay));
   
-  // Simulate occasional network errors (5% chance)
+  // Simular errores de red ocasionales (5% de probabilidad)
   if (Math.random() < 0.05) {
-    throw new Error('Network error');
+    throw new Error('Error de red');
   }
   
   return data;
 }
 ```
 
-## Real API Integration
+## Integración API Real
 
-### Future Implementation
-When integrating with real API endpoints, replace mock methods with actual HTTP requests:
+### Implementación Futura
+Cuando se integre con endpoints API reales, reemplazar métodos simulados con solicitudes HTTP reales:
 
 ```typescript
-// Replace mock implementation
+// Reemplazar implementación simulada
 static async getVenueCapacity() {
   const response = await this.authenticatedRequest('/venue/capacity');
   if (!response.ok) {
@@ -533,14 +533,14 @@ static async verifyWristband(qrCode: string) {
   });
   
   if (!response.ok) {
-    throw new Error(`Verification failed: ${response.statusText}`);
+    throw new Error(`Verificación falló: ${response.statusText}`);
   }
   
   return response.json();
 }
 ```
 
-### Environment Configuration
+### Configuración de Entorno
 ```typescript
 const API_CONFIG = {
   development: {
@@ -561,4 +561,4 @@ const API_CONFIG = {
 };
 ```
 
-This API documentation provides a complete reference for all endpoints, data structures, and integration patterns used in the QR Scanner Event Checker App.
+Esta documentación de API proporciona una referencia completa para todos los endpoints, estructuras de datos y patrones de integración utilizados en la Aplicación QR Scanner Event Checker.

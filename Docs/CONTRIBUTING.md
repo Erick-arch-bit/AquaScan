@@ -1,35 +1,35 @@
-# Contributing Guide
+# Guía de Contribución
 
-## Welcome Contributors!
+## ¡Bienvenidos Contribuidores!
 
-Thank you for your interest in contributing to the QR Scanner Event Checker App! This guide will help you understand our development process, coding standards, and how to submit contributions effectively.
+Gracias por tu interés en contribuir a la Aplicación QR Scanner Event Checker. Esta guía te ayudará a entender nuestro proceso de desarrollo, estándares de código y cómo enviar contribuciones de manera efectiva.
 
-## Table of Contents
+## Tabla de Contenidos
 
-1. [Getting Started](#getting-started)
-2. [Development Setup](#development-setup)
-3. [Project Structure](#project-structure)
-4. [Coding Standards](#coding-standards)
-5. [Development Workflow](#development-workflow)
-6. [Testing Guidelines](#testing-guidelines)
-7. [Submitting Changes](#submitting-changes)
-8. [Code Review Process](#code-review-process)
-9. [Issue Reporting](#issue-reporting)
-10. [Community Guidelines](#community-guidelines)
+1. [Primeros Pasos](#primeros-pasos)
+2. [Configuración de Desarrollo](#configuración-de-desarrollo)
+3. [Estructura del Proyecto](#estructura-del-proyecto)
+4. [Estándares de Código](#estándares-de-código)
+5. [Flujo de Trabajo de Desarrollo](#flujo-de-trabajo-de-desarrollo)
+6. [Guías de Pruebas](#guías-de-pruebas)
+7. [Envío de Cambios](#envío-de-cambios)
+8. [Proceso de Revisión de Código](#proceso-de-revisión-de-código)
+9. [Reporte de Issues](#reporte-de-issues)
+10. [Guías de Comunidad](#guías-de-comunidad)
 
-## Getting Started
+## Primeros Pasos
 
-### Prerequisites
+### Prerrequisitos
 
-Before contributing, ensure you have:
+Antes de contribuir, asegúrate de tener:
 
-- **Node.js** 18.x or higher
-- **npm** 8.x or higher
-- **Git** for version control
+- **Node.js** 18.x o superior
+- **npm** 8.x o superior
+- **Git** para control de versiones
 - **Expo CLI** (`npm install -g @expo/cli`)
-- **Code Editor** (VS Code recommended)
+- **Editor de Código** (VS Code recomendado)
 
-### Recommended VS Code Extensions
+### Extensiones Recomendadas de VS Code
 
 ```json
 {
@@ -44,98 +44,98 @@ Before contributing, ensure you have:
 }
 ```
 
-## Development Setup
+## Configuración de Desarrollo
 
-### 1. Fork and Clone
+### 1. Fork y Clonar
 
 ```bash
-# Fork the repository on GitHub
-# Then clone your fork
-git clone https://github.com/YOUR_USERNAME/event-checker-app.git
+# Hacer fork del repositorio en GitHub
+# Luego clonar tu fork
+git clone https://github.com/TU_USUARIO/event-checker-app.git
 cd event-checker-app
 
-# Add upstream remote
-git remote add upstream https://github.com/ORIGINAL_OWNER/event-checker-app.git
+# Agregar remote upstream
+git remote add upstream https://github.com/PROPIETARIO_ORIGINAL/event-checker-app.git
 ```
 
-### 2. Install Dependencies
+### 2. Instalar Dependencias
 
 ```bash
-# Install project dependencies
+# Instalar dependencias del proyecto
 npm install
 
-# Verify installation
+# Verificar instalación
 npx expo doctor
 ```
 
-### 3. Environment Configuration
+### 3. Configuración de Entorno
 
 ```bash
-# Copy environment template
+# Copiar plantilla de entorno
 cp .env.example .env
 
-# Configure your local environment
-# Edit .env with your local settings
+# Configurar tu entorno local
+# Editar .env con tus configuraciones locales
 ```
 
-### 4. Start Development Server
+### 4. Iniciar Servidor de Desarrollo
 
 ```bash
-# Start Expo development server
+# Iniciar servidor de desarrollo Expo
 npm run dev
 
-# Or start with specific platform
+# O iniciar con plataforma específica
 npm run ios
 npm run android
 npm run web
 ```
 
-## Project Structure
+## Estructura del Proyecto
 
-Understanding the project structure is crucial for effective contributions:
+Entender la estructura del proyecto es crucial para contribuciones efectivas:
 
 ```
 event-checker-app/
-├── app/                          # Expo Router pages
-│   ├── _layout.tsx              # Root layout
-│   ├── (auth)/                  # Authentication stack
-│   │   ├── _layout.tsx         # Auth layout
-│   │   └── login.tsx           # Login screen
-│   └── (tabs)/                  # Main tab navigation
-│       ├── _layout.tsx         # Tab layout
+├── app/                          # Páginas de Expo Router
+│   ├── _layout.tsx              # Layout raíz
+│   ├── (auth)/                  # Stack de autenticación
+│   │   ├── _layout.tsx         # Layout de autenticación
+│   │   └── login.tsx           # Pantalla de login
+│   └── (tabs)/                  # Navegación principal por pestañas
+│       ├── _layout.tsx         # Layout de pestañas
 │       ├── index.tsx           # Dashboard
-│       ├── wristbands.tsx      # Wristbands management
-│       ├── scanner.tsx         # QR scanner
-│       └── profile.tsx         # User profile
-├── components/                   # Reusable components
-│   ├── dashboard/               # Dashboard components
-│   └── wristbands/             # Wristband components
-├── services/                    # Business logic
-│   ├── api.ts                  # API service
-│   └── auth.ts                 # Authentication service
-├── hooks/                       # Custom React hooks
-├── types/                       # TypeScript type definitions
-├── assets/                      # Static assets
-├── __tests__/                   # Test files
-└── docs/                        # Documentation
+│       ├── wristbands.tsx      # Gestión de brazaletes
+│       ├── scanner.tsx         # Escáner QR
+│       └── profile.tsx         # Perfil de usuario
+├── components/                   # Componentes reutilizables
+│   ├── dashboard/               # Componentes del dashboard
+│   └── wristbands/             # Componentes de brazaletes
+├── services/                    # Lógica de negocio
+│   ├── api.ts                  # Servicio API
+│   └── auth.ts                 # Servicio de autenticación
+├── hooks/                       # Hooks personalizados de React
+├── types/                       # Definiciones de tipos TypeScript
+├── assets/                      # Recursos estáticos
+├── __tests__/                   # Archivos de prueba
+└── docs/                        # Documentación
 ```
 
-### File Naming Conventions
+### Convenciones de Nomenclatura de Archivos
 
-- **Components**: PascalCase (`VenueCapacity.tsx`)
-- **Screens**: PascalCase (`LoginScreen.tsx`)
-- **Services**: camelCase (`authService.ts`)
-- **Hooks**: camelCase with `use` prefix (`useFrameworkReady.ts`)
-- **Types**: PascalCase (`UserTypes.ts`)
-- **Constants**: UPPER_SNAKE_CASE (`API_CONSTANTS.ts`)
+- **Componentes**: PascalCase (`VenueCapacity.tsx`)
+- **Pantallas**: PascalCase (`LoginScreen.tsx`)
+- **Servicios**: camelCase (`authService.ts`)
+- **Hooks**: camelCase con prefijo `use` (`useFrameworkReady.ts`)
+- **Tipos**: PascalCase (`UserTypes.ts`)
+- **Constantes**: UPPER_SNAKE_CASE (`API_CONSTANTS.ts`)
 
-## Coding Standards
+## Estándares de Código
 
-### TypeScript Guidelines
+### Guías de TypeScript
 
-#### 1. Type Definitions
+#### 1. Definiciones de Tipos
 ```typescript
-// Always define interfaces for data structures
+// Siempre definir interfaces para estructuras de datos
 interface WristbandData {
   id: string;
   name: string;
@@ -144,10 +144,10 @@ interface WristbandData {
   verifiedBy?: string;
 }
 
-// Use union types for specific values
+// Usar tipos union para valores específicos
 type Theme = 'light' | 'dark' | 'auto';
 
-// Use generics for reusable components
+// Usar genéricos para componentes reutilizables
 interface ApiResponse<T> {
   data: T;
   status: number;
@@ -155,9 +155,9 @@ interface ApiResponse<T> {
 }
 ```
 
-#### 2. Component Props
+#### 2. Props de Componentes
 ```typescript
-// Always type component props
+// Siempre tipar props de componentes
 interface VenueCapacityProps {
   current: number;
   max: number;
@@ -173,28 +173,28 @@ export function VenueCapacity({
   isLoading,
   onRefresh 
 }: VenueCapacityProps) {
-  // Component implementation
+  // Implementación del componente
 }
 ```
 
-#### 3. Async Functions
+#### 3. Funciones Asíncronas
 ```typescript
-// Always type async function returns
+// Siempre tipar retornos de funciones asíncronas
 const fetchUserData = async (userId: string): Promise<UserData> => {
   try {
     const response = await ApiService.getUser(userId);
     return response.data;
   } catch (error) {
-    throw new Error(`Failed to fetch user: ${error.message}`);
+    throw new Error(`Falló al obtener usuario: ${error.message}`);
   }
 };
 ```
 
-### React Native Styling
+### Estilos de React Native
 
-#### 1. StyleSheet Usage
+#### 1. Uso de StyleSheet
 ```typescript
-// Always use StyleSheet.create
+// Siempre usar StyleSheet.create
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -210,9 +210,9 @@ const styles = StyleSheet.create({
 });
 ```
 
-#### 2. Color System
+#### 2. Sistema de Colores
 ```typescript
-// Use consistent color palette
+// Usar paleta de colores consistente
 const Colors = {
   primary: '#021024',
   secondary: '#052859',
@@ -224,7 +224,7 @@ const Colors = {
   warning: '#FFA726',
 } as const;
 
-// Usage in styles
+// Uso en estilos
 const styles = StyleSheet.create({
   button: {
     backgroundColor: Colors.primary,
@@ -233,9 +233,9 @@ const styles = StyleSheet.create({
 });
 ```
 
-#### 3. Responsive Design
+#### 3. Diseño Responsivo
 ```typescript
-// Use Dimensions for responsive layouts
+// Usar Dimensions para layouts responsivos
 import { Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -248,49 +248,49 @@ const styles = StyleSheet.create({
 });
 ```
 
-### Component Guidelines
+### Guías de Componentes
 
-#### 1. Component Structure
+#### 1. Estructura de Componentes
 ```typescript
-// Standard component structure
+// Estructura estándar de componentes
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 interface ComponentProps {
-  // Props interface
+  // Interfaz de props
 }
 
 export function ComponentName({ prop1, prop2 }: ComponentProps) {
-  // State declarations
+  // Declaraciones de estado
   const [state, setState] = useState(initialValue);
   
-  // Effect hooks
+  // Hooks de efecto
   useEffect(() => {
-    // Effect logic
+    // Lógica de efecto
   }, [dependencies]);
   
-  // Event handlers
+  // Manejadores de eventos
   const handleEvent = () => {
-    // Handler logic
+    // Lógica del manejador
   };
   
-  // Render
+  // Renderizado
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Content</Text>
+      <Text style={styles.text}>Contenido</Text>
     </View>
   );
 }
 
-// Styles at the bottom
+// Estilos al final
 const styles = StyleSheet.create({
-  // Styles
+  // Estilos
 });
 ```
 
-#### 2. Error Handling
+#### 2. Manejo de Errores
 ```typescript
-// Implement proper error boundaries
+// Implementar límites de error apropiados
 const ComponentWithErrorHandling = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -301,7 +301,7 @@ const ComponentWithErrorHandling = () => {
       setError(null);
       await someAsyncOperation();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : 'Error desconocido');
     } finally {
       setLoading(false);
     }
@@ -315,137 +315,137 @@ const ComponentWithErrorHandling = () => {
 };
 ```
 
-#### 3. Performance Optimization
+#### 3. Optimización de Rendimiento
 ```typescript
-// Use React.memo for expensive components
+// Usar React.memo para componentes costosos
 export const ExpensiveComponent = React.memo(({ data }: Props) => {
   return <ComplexRender data={data} />;
 });
 
-// Use useCallback for event handlers
+// Usar useCallback para manejadores de eventos
 const handlePress = useCallback((id: string) => {
   onItemPress(id);
 }, [onItemPress]);
 
-// Use useMemo for expensive calculations
+// Usar useMemo para cálculos costosos
 const processedData = useMemo(() => {
   return data.map(item => expensiveTransform(item));
 }, [data]);
 ```
 
-## Development Workflow
+## Flujo de Trabajo de Desarrollo
 
-### 1. Branch Strategy
+### 1. Estrategia de Ramas
 
-We use Git Flow branching model:
+Usamos el modelo de ramificación Git Flow:
 
 ```bash
-# Main branches
-main        # Production-ready code
-develop     # Integration branch for features
+# Ramas principales
+main        # Código listo para producción
+develop     # Rama de integración para características
 
-# Supporting branches
-feature/*   # New features
-bugfix/*    # Bug fixes
-hotfix/*    # Critical production fixes
-release/*   # Release preparation
+# Ramas de soporte
+feature/*   # Nuevas características
+bugfix/*    # Correcciones de errores
+hotfix/*    # Correcciones críticas de producción
+release/*   # Preparación de versiones
 ```
 
-### 2. Feature Development
+### 2. Desarrollo de Características
 
 ```bash
-# Start new feature
+# Iniciar nueva característica
 git checkout develop
 git pull upstream develop
-git checkout -b feature/new-scanner-feature
+git checkout -b feature/nueva-caracteristica-escaner
 
-# Make changes and commit
+# Hacer cambios y commit
 git add .
-git commit -m "feat: add enhanced QR scanner with validation"
+git commit -m "feat: agregar escáner QR mejorado con validación"
 
-# Push to your fork
-git push origin feature/new-scanner-feature
+# Push a tu fork
+git push origin feature/nueva-caracteristica-escaner
 
-# Create pull request to develop branch
+# Crear pull request a rama develop
 ```
 
-### 3. Commit Message Convention
+### 3. Convención de Mensajes de Commit
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/):
+Seguimos [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```bash
-# Format
-<type>[optional scope]: <description>
+# Formato
+<tipo>[ámbito opcional]: <descripción>
 
-[optional body]
+[cuerpo opcional]
 
-[optional footer(s)]
+[pie(s) opcional(es)]
 
-# Types
-feat:     # New feature
-fix:      # Bug fix
-docs:     # Documentation changes
-style:    # Code style changes (formatting, etc.)
-refactor: # Code refactoring
-test:     # Adding or updating tests
-chore:    # Maintenance tasks
+# Tipos
+feat:     # Nueva característica
+fix:      # Corrección de error
+docs:     # Cambios en documentación
+style:    # Cambios de estilo de código (formato, etc.)
+refactor: # Refactorización de código
+test:     # Agregar o actualizar pruebas
+chore:    # Tareas de mantenimiento
 
-# Examples
-feat(scanner): add QR code validation
-fix(auth): resolve login timeout issue
-docs: update API documentation
-style: format code with prettier
-refactor(components): extract common button component
-test(api): add unit tests for auth service
-chore: update dependencies
+# Ejemplos
+feat(scanner): agregar validación de código QR
+fix(auth): resolver problema de timeout de login
+docs: actualizar documentación de API
+style: formatear código con prettier
+refactor(components): extraer componente de botón común
+test(api): agregar pruebas unitarias para servicio de auth
+chore: actualizar dependencias
 ```
 
-### 4. Code Quality Checks
+### 4. Verificaciones de Calidad de Código
 
-Before committing, ensure your code passes all checks:
+Antes de hacer commit, asegurar que tu código pase todas las verificaciones:
 
 ```bash
-# Run linting
+# Ejecutar linting
 npm run lint
 
-# Run type checking
+# Ejecutar verificación de tipos
 npm run type-check
 
-# Run tests
+# Ejecutar pruebas
 npm run test
 
-# Run all checks
+# Ejecutar todas las verificaciones
 npm run validate
 ```
 
-## Testing Guidelines
+## Guías de Pruebas
 
-### 1. Test Structure
+### 1. Estructura de Pruebas
 
 ```typescript
-// Component test example
+// Ejemplo de prueba de componente
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { LoginScreen } from '../LoginScreen';
 
 describe('LoginScreen', () => {
-  it('should handle successful login', async () => {
+  it('debería manejar login exitoso', async () => {
     const mockLogin = jest.fn().mockResolvedValue({ success: true });
     
     const { getByPlaceholderText, getByText } = render(
       <LoginScreen onLogin={mockLogin} />
     );
     
-    // Arrange
+    // Organizar
     const emailInput = getByPlaceholderText('Email');
-    const passwordInput = getByPlaceholderText('Password');
-    const loginButton = getByText('Login');
+    const passwordInput = getByPlaceholderText('Contraseña');
+    const loginButton = getByText('Iniciar Sesión');
     
-    // Act
+    // Actuar
     fireEvent.changeText(emailInput, 'test@example.com');
     fireEvent.changeText(passwordInput, 'password123');
     fireEvent.press(loginButton);
     
-    // Assert
+    // Afirmar
     await waitFor(() => {
       expect(mockLogin).toHaveBeenCalledWith('test@example.com', 'password123');
     });
@@ -453,10 +453,10 @@ describe('LoginScreen', () => {
 });
 ```
 
-### 2. Service Testing
+### 2. Pruebas de Servicios
 
 ```typescript
-// Service test example
+// Ejemplo de prueba de servicio
 import { ApiService } from '../ApiService';
 
 describe('ApiService', () => {
@@ -464,49 +464,49 @@ describe('ApiService', () => {
     jest.clearAllMocks();
   });
   
-  it('should verify wristband successfully', async () => {
-    // Arrange
+  it('debería verificar brazalete exitosamente', async () => {
+    // Organizar
     const mockQRCode = 'WB-123456';
     
-    // Act
+    // Actuar
     const result = await ApiService.verifyWristband(mockQRCode);
     
-    // Assert
+    // Afirmar
     expect(result.valid).toBe(true);
     expect(result.message).toContain('verificado');
   });
   
-  it('should handle invalid wristband', async () => {
-    // Arrange
-    const mockQRCode = 'invalid-code';
+  it('debería manejar brazalete inválido', async () => {
+    // Organizar
+    const mockQRCode = 'codigo-invalido';
     
-    // Act
+    // Actuar
     const result = await ApiService.verifyWristband(mockQRCode);
     
-    // Assert
+    // Afirmar
     expect(result.valid).toBe(false);
     expect(result.message).toContain('no válido');
   });
 });
 ```
 
-### 3. Integration Testing
+### 3. Pruebas de Integración
 
 ```typescript
-// Integration test example
-describe('Authentication Flow', () => {
-  it('should complete login to dashboard flow', async () => {
+// Ejemplo de prueba de integración
+describe('Flujo de Autenticación', () => {
+  it('debería completar flujo de login a dashboard', async () => {
     const { getByPlaceholderText, getByText, queryByText } = render(<App />);
     
-    // Start at login screen
+    // Iniciar en pantalla de login
     expect(getByText('Iniciar Sesión')).toBeTruthy();
     
-    // Enter credentials
+    // Ingresar credenciales
     fireEvent.changeText(getByPlaceholderText('Email'), 'test@example.com');
-    fireEvent.changeText(getByPlaceholderText('Password'), 'password');
+    fireEvent.changeText(getByPlaceholderText('Contraseña'), 'password');
     fireEvent.press(getByText('Iniciar Sesión'));
     
-    // Should navigate to dashboard
+    // Debería navegar al dashboard
     await waitFor(() => {
       expect(queryByText('Dashboard')).toBeTruthy();
     });
@@ -514,265 +514,265 @@ describe('Authentication Flow', () => {
 });
 ```
 
-### 4. Test Coverage
+### 4. Cobertura de Pruebas
 
-Maintain minimum test coverage:
-- **Components**: 80% coverage
-- **Services**: 90% coverage
-- **Utilities**: 95% coverage
+Mantener cobertura mínima de pruebas:
+- **Componentes**: 80% de cobertura
+- **Servicios**: 90% de cobertura
+- **Utilidades**: 95% de cobertura
 
 ```bash
-# Run tests with coverage
+# Ejecutar pruebas con cobertura
 npm run test:coverage
 
-# View coverage report
+# Ver reporte de cobertura
 open coverage/lcov-report/index.html
 ```
 
-## Submitting Changes
+## Envío de Cambios
 
-### 1. Pre-submission Checklist
+### 1. Lista de Verificación Pre-envío
 
-Before submitting a pull request:
+Antes de enviar un pull request:
 
-- [ ] Code follows project style guidelines
-- [ ] All tests pass
-- [ ] New features include tests
-- [ ] Documentation is updated
-- [ ] Commit messages follow convention
-- [ ] No console.log statements in production code
-- [ ] TypeScript types are properly defined
-- [ ] Performance impact is considered
+- [ ] El código sigue las guías de estilo del proyecto
+- [ ] Todas las pruebas pasan
+- [ ] Las nuevas características incluyen pruebas
+- [ ] La documentación está actualizada
+- [ ] Los mensajes de commit siguen la convención
+- [ ] No hay declaraciones console.log en código de producción
+- [ ] Los tipos TypeScript están apropiadamente definidos
+- [ ] Se considera el impacto en el rendimiento
 
-### 2. Pull Request Template
-
-```markdown
-## Description
-Brief description of changes made.
-
-## Type of Change
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
-
-## Testing
-- [ ] Unit tests added/updated
-- [ ] Integration tests added/updated
-- [ ] Manual testing completed
-
-## Screenshots (if applicable)
-Add screenshots to help explain your changes.
-
-## Checklist
-- [ ] My code follows the style guidelines of this project
-- [ ] I have performed a self-review of my own code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-```
-
-### 3. Pull Request Process
-
-1. **Create Pull Request**: Submit PR to `develop` branch
-2. **Automated Checks**: Ensure CI/CD pipeline passes
-3. **Code Review**: Address reviewer feedback
-4. **Testing**: Verify changes work as expected
-5. **Merge**: Maintainer merges after approval
-
-## Code Review Process
-
-### 1. Review Criteria
-
-Reviewers will check for:
-
-- **Functionality**: Does the code work as intended?
-- **Code Quality**: Is the code clean and maintainable?
-- **Performance**: Are there any performance implications?
-- **Security**: Are there any security concerns?
-- **Testing**: Are tests adequate and passing?
-- **Documentation**: Is documentation updated?
-
-### 2. Review Guidelines
-
-#### For Authors
-- Provide clear PR description
-- Respond to feedback promptly
-- Make requested changes
-- Keep PRs focused and small
-
-#### For Reviewers
-- Be constructive and respectful
-- Explain reasoning for suggestions
-- Approve when satisfied
-- Request changes if needed
-
-### 3. Review Checklist
+### 2. Plantilla de Pull Request
 
 ```markdown
-## Code Review Checklist
+## Descripción
+Breve descripción de los cambios realizados.
 
-### Functionality
-- [ ] Code works as described
-- [ ] Edge cases are handled
-- [ ] Error handling is appropriate
+## Tipo de Cambio
+- [ ] Corrección de error (cambio que no rompe funcionalidad y corrige un issue)
+- [ ] Nueva característica (cambio que no rompe funcionalidad y agrega funcionalidad)
+- [ ] Cambio que rompe funcionalidad (corrección o característica que causaría que funcionalidad existente no funcione como se esperaba)
+- [ ] Actualización de documentación
 
-### Code Quality
-- [ ] Code is readable and well-structured
-- [ ] Naming conventions are followed
-- [ ] No code duplication
-- [ ] Comments explain complex logic
+## Pruebas
+- [ ] Pruebas unitarias agregadas/actualizadas
+- [ ] Pruebas de integración agregadas/actualizadas
+- [ ] Pruebas manuales completadas
 
-### Performance
-- [ ] No unnecessary re-renders
-- [ ] Efficient algorithms used
-- [ ] Memory leaks prevented
+## Capturas de Pantalla (si aplica)
+Agregar capturas de pantalla para ayudar a explicar tus cambios.
 
-### Security
-- [ ] Input validation implemented
-- [ ] No sensitive data exposed
-- [ ] Authentication/authorization correct
-
-### Testing
-- [ ] Tests cover new functionality
-- [ ] Tests are meaningful
-- [ ] All tests pass
-
-### Documentation
-- [ ] README updated if needed
-- [ ] API documentation updated
-- [ ] Comments added for complex code
+## Lista de Verificación
+- [ ] Mi código sigue las guías de estilo de este proyecto
+- [ ] He realizado una auto-revisión de mi propio código
+- [ ] He comentado mi código, particularmente en áreas difíciles de entender
+- [ ] He hecho cambios correspondientes a la documentación
+- [ ] Mis cambios no generan nuevas advertencias
+- [ ] He agregado pruebas que demuestran que mi corrección es efectiva o que mi característica funciona
+- [ ] Las pruebas unitarias nuevas y existentes pasan localmente con mis cambios
 ```
 
-## Issue Reporting
+### 3. Proceso de Pull Request
 
-### 1. Bug Reports
+1. **Crear Pull Request**: Enviar PR a rama `develop`
+2. **Verificaciones Automatizadas**: Asegurar que el pipeline CI/CD pase
+3. **Revisión de Código**: Abordar retroalimentación del revisor
+4. **Pruebas**: Verificar que los cambios funcionen como se esperaba
+5. **Merge**: El mantenedor hace merge después de aprobación
 
-Use this template for bug reports:
+## Proceso de Revisión de Código
+
+### 1. Criterios de Revisión
+
+Los revisores verificarán:
+
+- **Funcionalidad**: ¿El código funciona como se pretende?
+- **Calidad de Código**: ¿El código es limpio y mantenible?
+- **Rendimiento**: ¿Hay implicaciones de rendimiento?
+- **Seguridad**: ¿Hay preocupaciones de seguridad?
+- **Pruebas**: ¿Las pruebas son adecuadas y pasan?
+- **Documentación**: ¿La documentación está actualizada?
+
+### 2. Guías de Revisión
+
+#### Para Autores
+- Proporcionar descripción clara del PR
+- Responder a retroalimentación prontamente
+- Hacer cambios solicitados
+- Mantener PRs enfocados y pequeños
+
+#### Para Revisores
+- Ser constructivo y respetuoso
+- Explicar razonamiento para sugerencias
+- Aprobar cuando esté satisfecho
+- Solicitar cambios si es necesario
+
+### 3. Lista de Verificación de Revisión
 
 ```markdown
-## Bug Description
-A clear and concise description of what the bug is.
+## Lista de Verificación de Revisión de Código
 
-## Steps to Reproduce
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+### Funcionalidad
+- [ ] El código funciona como se describe
+- [ ] Los casos extremos están manejados
+- [ ] El manejo de errores es apropiado
 
-## Expected Behavior
-A clear and concise description of what you expected to happen.
+### Calidad de Código
+- [ ] El código es legible y bien estructurado
+- [ ] Se siguen las convenciones de nomenclatura
+- [ ] No hay duplicación de código
+- [ ] Los comentarios explican lógica compleja
 
-## Actual Behavior
-A clear and concise description of what actually happened.
+### Rendimiento
+- [ ] No hay re-renderizados innecesarios
+- [ ] Se usan algoritmos eficientes
+- [ ] Se previenen memory leaks
 
-## Screenshots
-If applicable, add screenshots to help explain your problem.
+### Seguridad
+- [ ] Validación de entrada implementada
+- [ ] No se exponen datos sensibles
+- [ ] Autenticación/autorización correcta
 
-## Environment
-- Device: [e.g. iPhone 12, Samsung Galaxy S21]
-- OS: [e.g. iOS 15.0, Android 11]
-- App Version: [e.g. 1.0.0]
-- Expo SDK Version: [e.g. 52.0.30]
+### Pruebas
+- [ ] Las pruebas cubren nueva funcionalidad
+- [ ] Las pruebas son significativas
+- [ ] Todas las pruebas pasan
 
-## Additional Context
-Add any other context about the problem here.
+### Documentación
+- [ ] README actualizado si es necesario
+- [ ] Documentación de API actualizada
+- [ ] Comentarios agregados para código complejo
 ```
 
-### 2. Feature Requests
+## Reporte de Issues
 
-Use this template for feature requests:
+### 1. Reportes de Errores
+
+Usar esta plantilla para reportes de errores:
 
 ```markdown
-## Feature Description
-A clear and concise description of what you want to happen.
+## Descripción del Error
+Una descripción clara y concisa de qué es el error.
 
-## Problem Statement
-Is your feature request related to a problem? Please describe.
+## Pasos para Reproducir
+1. Ir a '...'
+2. Hacer clic en '....'
+3. Desplazarse hacia abajo a '....'
+4. Ver error
 
-## Proposed Solution
-Describe the solution you'd like.
+## Comportamiento Esperado
+Una descripción clara y concisa de lo que esperabas que pasara.
 
-## Alternatives Considered
-Describe any alternative solutions or features you've considered.
+## Comportamiento Actual
+Una descripción clara y concisa de lo que realmente pasó.
 
-## Additional Context
-Add any other context or screenshots about the feature request here.
+## Capturas de Pantalla
+Si aplica, agregar capturas de pantalla para ayudar a explicar tu problema.
 
-## Implementation Notes
-Any technical considerations or implementation details.
+## Entorno
+- Dispositivo: [ej. iPhone 12, Samsung Galaxy S21]
+- OS: [ej. iOS 15.0, Android 11]
+- Versión de App: [ej. 1.0.0]
+- Versión de Expo SDK: [ej. 52.0.30]
+
+## Contexto Adicional
+Agregar cualquier otro contexto sobre el problema aquí.
 ```
 
-### 3. Issue Labels
+### 2. Solicitudes de Características
 
-We use these labels to categorize issues:
+Usar esta plantilla para solicitudes de características:
 
-- `bug`: Something isn't working
-- `enhancement`: New feature or request
-- `documentation`: Improvements or additions to documentation
-- `good first issue`: Good for newcomers
-- `help wanted`: Extra attention is needed
-- `question`: Further information is requested
-- `wontfix`: This will not be worked on
-- `duplicate`: This issue or pull request already exists
-- `priority:high`: High priority issue
-- `priority:medium`: Medium priority issue
-- `priority:low`: Low priority issue
+```markdown
+## Descripción de la Característica
+Una descripción clara y concisa de lo que quieres que pase.
 
-## Community Guidelines
+## Declaración del Problema
+¿Tu solicitud de característica está relacionada con un problema? Por favor describe.
 
-### 1. Code of Conduct
+## Solución Propuesta
+Describe la solución que te gustaría.
 
-We are committed to providing a welcoming and inspiring community for all. Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+## Alternativas Consideradas
+Describe cualquier solución alternativa o características que hayas considerado.
 
-### 2. Communication
+## Contexto Adicional
+Agregar cualquier otro contexto o capturas de pantalla sobre la solicitud de característica aquí.
 
-- **Be Respectful**: Treat everyone with respect and kindness
-- **Be Constructive**: Provide helpful feedback and suggestions
-- **Be Patient**: Remember that everyone has different experience levels
-- **Be Inclusive**: Welcome newcomers and help them get started
+## Notas de Implementación
+Cualquier consideración técnica o detalles de implementación.
+```
 
-### 3. Getting Help
+### 3. Etiquetas de Issues
 
-If you need help:
+Usamos estas etiquetas para categorizar issues:
 
-1. **Documentation**: Check existing documentation first
-2. **Issues**: Search existing issues for similar problems
-3. **Discussions**: Use GitHub Discussions for questions
-4. **Discord**: Join our community Discord server
-5. **Email**: Contact maintainers directly for sensitive issues
+- `bug`: Algo no está funcionando
+- `enhancement`: Nueva característica o solicitud
+- `documentation`: Mejoras o adiciones a documentación
+- `good first issue`: Bueno para recién llegados
+- `help wanted`: Se necesita atención extra
+- `question`: Se solicita más información
+- `wontfix`: Esto no se trabajará
+- `duplicate`: Este issue o pull request ya existe
+- `priority:high`: Issue de alta prioridad
+- `priority:medium`: Issue de prioridad media
+- `priority:low`: Issue de baja prioridad
 
-### 4. Recognition
+## Guías de Comunidad
 
-We appreciate all contributions! Contributors will be:
+### 1. Código de Conducta
 
-- Listed in the CONTRIBUTORS.md file
-- Mentioned in release notes for significant contributions
-- Invited to join the core team for outstanding contributions
+Estamos comprometidos a proporcionar una comunidad acogedora e inspiradora para todos. Por favor lee y sigue nuestro [Código de Conducta](CODE_OF_CONDUCT.md).
 
-## Development Resources
+### 2. Comunicación
 
-### 1. Useful Links
+- **Sé Respetuoso**: Trata a todos con respeto y amabilidad
+- **Sé Constructivo**: Proporciona retroalimentación útil y sugerencias
+- **Sé Paciente**: Recuerda que todos tienen diferentes niveles de experiencia
+- **Sé Inclusivo**: Da la bienvenida a recién llegados y ayúdalos a comenzar
 
-- [Expo Documentation](https://docs.expo.dev/)
-- [React Native Documentation](https://reactnative.dev/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [Testing Library Documentation](https://testing-library.com/docs/react-native-testing-library/intro/)
+### 3. Obtener Ayuda
 
-### 2. Development Tools
+Si necesitas ayuda:
 
-- **Expo Dev Tools**: Built-in debugging tools
-- **React Native Debugger**: Advanced debugging
-- **Flipper**: Mobile app debugger
-- **VS Code Extensions**: Enhanced development experience
+1. **Documentación**: Revisa la documentación existente primero
+2. **Issues**: Busca issues existentes para problemas similares
+3. **Discusiones**: Usa GitHub Discussions para preguntas
+4. **Discord**: Únete a nuestro servidor Discord de la comunidad
+5. **Email**: Contacta a los mantenedores directamente para issues sensibles
 
-### 3. Learning Resources
+### 4. Reconocimiento
 
-- [React Native Tutorial](https://reactnative.dev/docs/tutorial)
-- [Expo Tutorial](https://docs.expo.dev/tutorial/introduction/)
-- [TypeScript Tutorial](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
-- [Testing Tutorial](https://testing-library.com/docs/react-native-testing-library/example-intro/)
+¡Apreciamos todas las contribuciones! Los contribuidores serán:
 
-Thank you for contributing to the QR Scanner Event Checker App! Your contributions help make this project better for everyone.
+- Listados en el archivo CONTRIBUTORS.md
+- Mencionados en notas de versión para contribuciones significativas
+- Invitados a unirse al equipo central para contribuciones destacadas
+
+## Recursos de Desarrollo
+
+### 1. Enlaces Útiles
+
+- [Documentación de Expo](https://docs.expo.dev/)
+- [Documentación de React Native](https://reactnative.dev/)
+- [Manual de TypeScript](https://www.typescriptlang.org/docs/)
+- [Documentación de Testing Library](https://testing-library.com/docs/react-native-testing-library/intro/)
+
+### 2. Herramientas de Desarrollo
+
+- **Expo Dev Tools**: Herramientas de depuración integradas
+- **React Native Debugger**: Depuración avanzada
+- **Flipper**: Depurador de aplicaciones móviles
+- **Extensiones de VS Code**: Experiencia de desarrollo mejorada
+
+### 3. Recursos de Aprendizaje
+
+- [Tutorial de React Native](https://reactnative.dev/docs/tutorial)
+- [Tutorial de Expo](https://docs.expo.dev/tutorial/introduction/)
+- [Tutorial de TypeScript](https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html)
+- [Tutorial de Testing](https://testing-library.com/docs/react-native-testing-library/example-intro/)
+
+¡Gracias por contribuir a la Aplicación QR Scanner Event Checker! Tus contribuciones ayudan a hacer este proyecto mejor para todos.

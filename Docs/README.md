@@ -1,144 +1,144 @@
-# QR Scanner Event Checker App
+# QR Scanner - Aplicación de Control de Acceso para Eventos
 
-A modern, minimalist React Native application built with Expo for event access control and wristband verification. This app provides real-time venue capacity monitoring, QR code scanning for wristband verification, and comprehensive dashboard analytics.
+Una aplicación moderna y minimalista desarrollada en React Native con Expo para el control de acceso a eventos y verificación de brazaletes. Esta aplicación proporciona monitoreo en tiempo real de la capacidad del venue, escaneo de códigos QR para verificación de brazaletes y análisis completos del dashboard.
 
-## 🚀 Features
+## 🚀 Características Principales
 
-### Core Functionality
-- **QR Code Scanner**: Real-time wristband verification using device camera
-- **Dashboard Analytics**: Live venue capacity monitoring and checker performance metrics
-- **Wristband Management**: Complete tracking of verified, pending, and rejected wristbands
-- **User Authentication**: Secure login system with token-based authentication
-- **Profile Management**: User account information and app settings
+### Funcionalidad Central
+- **Escáner QR**: Verificación de brazaletes en tiempo real usando la cámara del dispositivo
+- **Dashboard Analítico**: Monitoreo en vivo de la capacidad del venue y métricas de rendimiento de verificadores
+- **Gestión de Brazaletes**: Seguimiento completo de brazaletes verificados, pendientes y rechazados
+- **Autenticación de Usuario**: Sistema de login seguro con autenticación basada en tokens
+- **Gestión de Perfil**: Información de cuenta de usuario y configuraciones de la aplicación
 
-### Key Highlights
-- **Real-time Updates**: Live data synchronization every 30 seconds
-- **Offline-Ready**: Graceful handling of network connectivity issues
-- **Modern UI/UX**: Clean, minimalist design with professional aesthetics
-- **Cross-Platform**: Works on iOS, Android, and Web platforms
-- **Production-Ready**: Comprehensive error handling and user feedback
+### Características Destacadas
+- **Actualizaciones en Tiempo Real**: Sincronización de datos en vivo cada 30 segundos
+- **Preparado para Offline**: Manejo elegante de problemas de conectividad de red
+- **UI/UX Moderno**: Diseño limpio y minimalista con estética profesional
+- **Multiplataforma**: Funciona en iOS, Android y plataformas Web
+- **Listo para Producción**: Manejo integral de errores y retroalimentación al usuario
 
-## 🎨 Design System
+## 🎨 Sistema de Diseño
 
-### Color Palette
+### Paleta de Colores
 ```css
-Primary Blue: #021024    /* Headers, primary text */
-Secondary Blue: #052859  /* Buttons, accents */
-Light Blue: #7DA0CA     /* Secondary text, icons */
-Background: #C1E8FF     /* Main background */
-White: #FFFFFF          /* Cards, overlays */
-Success: #4CAF50        /* Verified states */
-Error: #FF3B30          /* Error states */
-Warning: #FFA726        /* Warning states */
+Azul Primario: #021024    /* Encabezados, texto principal */
+Azul Secundario: #052859  /* Botones, acentos */
+Azul Claro: #7DA0CA      /* Texto secundario, iconos */
+Fondo: #C1E8FF           /* Fondo principal */
+Blanco: #FFFFFF          /* Tarjetas, overlays */
+Éxito: #4CAF50           /* Estados verificados */
+Error: #FF3B30           /* Estados de error */
+Advertencia: #FFA726     /* Estados de advertencia */
 ```
 
-### Typography
-- **Headers**: Bold, 24-32px, Primary Blue
-- **Body Text**: Regular, 16px, Primary Blue
-- **Secondary Text**: Medium, 14px, Light Blue
-- **Buttons**: Bold, 16-18px, White on Primary Blue
+### Tipografía
+- **Encabezados**: Bold, 24-32px, Azul Primario
+- **Texto del Cuerpo**: Regular, 16px, Azul Primario
+- **Texto Secundario**: Medium, 14px, Azul Claro
+- **Botones**: Bold, 16-18px, Blanco sobre Azul Primario
 
-### Spacing System
-- **Base Unit**: 8px
-- **Small**: 8px, 12px, 16px
-- **Medium**: 20px, 24px, 32px
-- **Large**: 40px, 60px, 80px
+### Sistema de Espaciado
+- **Unidad Base**: 8px
+- **Pequeño**: 8px, 12px, 16px
+- **Mediano**: 20px, 24px, 32px
+- **Grande**: 40px, 60px, 80px
 
-## 📱 App Structure
+## 📱 Estructura de la Aplicación
 
-### Navigation Architecture
+### Arquitectura de Navegación
 ```
-Root Layout (_layout.tsx)
-├── Authentication Stack (auth)
-│   └── Login Screen
-└── Main Tabs (tabs)
+Layout Raíz (_layout.tsx)
+├── Stack de Autenticación (auth)
+│   └── Pantalla de Login
+└── Pestañas Principales (tabs)
     ├── Dashboard (index)
-    ├── Wristbands Management
-    ├── QR Scanner
-    └── Profile (hidden from tabs)
+    ├── Gestión de Brazaletes
+    ├── Escáner QR
+    └── Perfil (oculto de las pestañas)
 ```
 
-### Screen Descriptions
+### Descripción de Pantallas
 
-#### 1. Login Screen (`(auth)/login.tsx`)
-- **Purpose**: User authentication and app entry point
-- **Features**: Email/password login, error handling, loading states
-- **API Integration**: Connects to `https://api.xolotlcl.com/api/loginXcl`
+#### 1. Pantalla de Login (`(auth)/login.tsx`)
+- **Propósito**: Autenticación de usuario y punto de entrada a la aplicación
+- **Características**: Login con email/contraseña, manejo de errores, estados de carga
+- **Integración API**: Se conecta a `https://api.xolotlcl.com/api/loginXcl`
 
 #### 2. Dashboard (`(tabs)/index.tsx`)
-- **Purpose**: Real-time venue monitoring and analytics
-- **Components**: 
-  - Venue capacity gauge with status indicators
-  - Checker performance summary table
-  - Auto-refresh functionality
-- **Data Sources**: Mock API with realistic venue data
+- **Propósito**: Monitoreo del venue en tiempo real y análisis
+- **Componentes**: 
+  - Medidor de capacidad del venue con indicadores de estado
+  - Tabla resumen de rendimiento de verificadores
+  - Funcionalidad de auto-actualización
+- **Fuentes de Datos**: API simulada con datos realistas del venue
 
-#### 3. Wristbands (`(tabs)/wristbands.tsx`)
-- **Purpose**: Complete wristband inventory and status tracking
-- **Features**: 
-  - Search and filter functionality
-  - Status-based filtering (All, Verified, Pending)
-  - Individual wristband details with verification history
+#### 3. Brazaletes (`(tabs)/wristbands.tsx`)
+- **Propósito**: Inventario completo de brazaletes y seguimiento de estado
+- **Características**: 
+  - Funcionalidad de búsqueda y filtrado
+  - Filtrado basado en estado (Todos, Verificados, Pendientes)
+  - Detalles individuales de brazaletes con historial de verificación
 
-#### 4. Scanner (`(tabs)/scanner.tsx`)
-- **Purpose**: QR code scanning and real-time verification
-- **Features**:
-  - Camera-based QR scanning
-  - Manual code entry support
-  - Instant verification feedback
-  - Success/error modal dialogs
-- **Camera Integration**: Uses `expo-camera` with proper permissions
+#### 4. Escáner (`(tabs)/scanner.tsx`)
+- **Propósito**: Escaneo de códigos QR y verificación en tiempo real
+- **Características**:
+  - Escaneo QR basado en cámara
+  - Soporte para entrada manual de códigos
+  - Retroalimentación instantánea de verificación
+  - Diálogos modales de éxito/error
+- **Integración de Cámara**: Usa `expo-camera` con permisos apropiados
 
-#### 5. Profile (`(tabs)/profile.tsx`)
-- **Purpose**: User account management and app information
-- **Features**:
-  - User information display
-  - App version and support information
-  - Secure logout functionality
+#### 5. Perfil (`(tabs)/profile.tsx`)
+- **Propósito**: Gestión de cuenta de usuario e información de la aplicación
+- **Características**:
+  - Visualización de información del usuario
+  - Información de versión de la aplicación y soporte
+  - Funcionalidad de logout seguro
 
-## 🛠 Technical Architecture
+## 🛠 Arquitectura Técnica
 
-### Technology Stack
-- **Framework**: React Native with Expo SDK 52.0.30
-- **Navigation**: Expo Router 4.0.17
-- **Language**: TypeScript
-- **Styling**: StyleSheet (React Native)
-- **Icons**: Lucide React Native
-- **Camera**: Expo Camera
-- **State Management**: React Hooks (useState, useEffect)
+### Stack Tecnológico
+- **Framework**: React Native con Expo SDK 52.0.30
+- **Navegación**: Expo Router 4.0.17
+- **Lenguaje**: TypeScript
+- **Estilos**: StyleSheet (React Native)
+- **Iconos**: Lucide React Native
+- **Cámara**: Expo Camera
+- **Gestión de Estado**: React Hooks (useState, useEffect)
 
-### Project Structure
+### Estructura del Proyecto
 ```
-├── app/                          # Expo Router pages
-│   ├── _layout.tsx              # Root layout with navigation
-│   ├── (auth)/                  # Authentication stack
-│   │   ├── _layout.tsx         # Auth layout
-│   │   └── login.tsx           # Login screen
-│   ├── (tabs)/                  # Main tab navigation
-│   │   ├── _layout.tsx         # Tab layout with headers
-│   │   ├── index.tsx           # Dashboard screen
-│   │   ├── wristbands.tsx      # Wristbands management
-│   │   ├── scanner.tsx         # QR scanner
-│   │   └── profile.tsx         # User profile
-│   └── +not-found.tsx          # 404 error page
-├── components/                   # Reusable components
-│   ├── dashboard/               # Dashboard-specific components
-│   │   ├── VenueCapacity.tsx   # Capacity gauge component
-│   │   └── CheckerSummary.tsx  # Checker performance table
-│   └── wristbands/             # Wristband-specific components
-│       └── WristbandItem.tsx   # Individual wristband card
-├── services/                    # API and business logic
-│   ├── api.ts                  # Mock API service
-│   └── auth.ts                 # Authentication service
-├── hooks/                       # Custom React hooks
-│   └── useFrameworkReady.ts    # Framework initialization
-└── assets/                      # Static assets
-    └── images/                 # App icons and images
+├── app/                          # Páginas de Expo Router
+│   ├── _layout.tsx              # Layout raíz con navegación
+│   ├── (auth)/                  # Stack de autenticación
+│   │   ├── _layout.tsx         # Layout de autenticación
+│   │   └── login.tsx           # Pantalla de login
+│   ├── (tabs)/                  # Navegación principal por pestañas
+│   │   ├── _layout.tsx         # Layout de pestañas con encabezados
+│   │   ├── index.tsx           # Pantalla del dashboard
+│   │   ├── wristbands.tsx      # Gestión de brazaletes
+│   │   ├── scanner.tsx         # Escáner QR
+│   │   └── profile.tsx         # Perfil de usuario
+│   └── +not-found.tsx          # Página de error 404
+├── components/                   # Componentes reutilizables
+│   ├── dashboard/               # Componentes específicos del dashboard
+│   │   ├── VenueCapacity.tsx   # Componente medidor de capacidad
+│   │   └── CheckerSummary.tsx  # Tabla de rendimiento de verificadores
+│   └── wristbands/             # Componentes específicos de brazaletes
+│       └── WristbandItem.tsx   # Tarjeta individual de brazalete
+├── services/                    # API y lógica de negocio
+│   ├── api.ts                  # Servicio API simulado
+│   └── auth.ts                 # Servicio de autenticación
+├── hooks/                       # Hooks personalizados de React
+│   └── useFrameworkReady.ts    # Inicialización del framework
+└── assets/                      # Recursos estáticos
+    └── images/                 # Iconos e imágenes de la aplicación
 ```
 
-### Key Services
+### Servicios Clave
 
-#### Authentication Service (`services/auth.ts`)
+#### Servicio de Autenticación (`services/auth.ts`)
 ```typescript
 class AuthService {
   static async login(email: string, password: string)
@@ -149,7 +149,7 @@ class AuthService {
 }
 ```
 
-#### API Service (`services/api.ts`)
+#### Servicio API (`services/api.ts`)
 ```typescript
 class ApiService {
   static async getVenueCapacity()
@@ -160,49 +160,49 @@ class ApiService {
 }
 ```
 
-## 🔧 Development Setup
+## 🔧 Configuración de Desarrollo
 
-### Prerequisites
+### Prerrequisitos
 - Node.js 18+ 
-- npm or yarn
+- npm o yarn
 - Expo CLI
-- iOS Simulator (for iOS development)
-- Android Studio (for Android development)
+- Simulador iOS (para desarrollo iOS)
+- Android Studio (para desarrollo Android)
 
-### Installation
+### Instalación
 ```bash
-# Clone the repository
-git clone <repository-url>
+# Clonar el repositorio
+git clone <url-del-repositorio>
 cd event-checker-app
 
-# Install dependencies
+# Instalar dependencias
 npm install
 
-# Start development server
+# Iniciar servidor de desarrollo
 npm run dev
 ```
 
-### Available Scripts
+### Scripts Disponibles
 ```bash
-npm run start      # Start Expo development server
-npm run dev        # Start web development server
-npm run android    # Run on Android device/emulator
-npm run ios        # Run on iOS device/simulator
-npm run web        # Run in web browser
-npm run test       # Run test suite
-npm run lint       # Run ESLint
+npm run start      # Iniciar servidor de desarrollo Expo
+npm run dev        # Iniciar servidor de desarrollo web
+npm run android    # Ejecutar en dispositivo/emulador Android
+npm run ios        # Ejecutar en dispositivo/simulador iOS
+npm run web        # Ejecutar en navegador web
+npm run test       # Ejecutar suite de pruebas
+npm run lint       # Ejecutar ESLint
 ```
 
-### Environment Configuration
-Create a `.env` file in the root directory:
+### Configuración de Entorno
+Crear un archivo `.env` en el directorio raíz:
 ```env
 EXPO_PUBLIC_API_URL=https://api.xolotlcl.com/api
 EXPO_PUBLIC_APP_VERSION=1.0.0
 ```
 
-## 📊 Data Models
+## 📊 Modelos de Datos
 
-### User Authentication
+### Autenticación de Usuario
 ```typescript
 interface LoginResponse {
   status: number;
@@ -211,27 +211,27 @@ interface LoginResponse {
 }
 ```
 
-### Venue Capacity
+### Capacidad del Venue
 ```typescript
 interface VenueCapacity {
-  current: number;    // Current occupancy
-  max: number;        // Maximum capacity
-  percentage: number; // Occupancy percentage
+  current: number;    // Ocupación actual
+  max: number;        // Capacidad máxima
+  percentage: number; // Porcentaje de ocupación
 }
 ```
 
-### Checker Performance
+### Rendimiento de Verificadores
 ```typescript
 interface CheckerData {
   id: string;
   name: string;
-  scanned: number;    // Total scans performed
-  verified: number;   // Successfully verified
-  rejected: number;   // Rejected scans
+  scanned: number;    // Total de escaneos realizados
+  verified: number;   // Verificados exitosamente
+  rejected: number;   // Escaneos rechazados
 }
 ```
 
-### Wristband Data
+### Datos de Brazaletes
 ```typescript
 interface Wristband {
   id: string;
@@ -242,7 +242,7 @@ interface Wristband {
 }
 ```
 
-### Verification Response
+### Respuesta de Verificación
 ```typescript
 interface VerificationResult {
   valid: boolean;
@@ -250,9 +250,9 @@ interface VerificationResult {
 }
 ```
 
-## 🎯 API Integration
+## 🎯 Integración API
 
-### Authentication Endpoints
+### Endpoints de Autenticación
 ```typescript
 POST /loginXcl
 Body: { email: string, password: string }
@@ -263,15 +263,15 @@ Headers: { Authorization: "Bearer <token>" }
 Response: { status: number, msg: string }
 ```
 
-### Mock Data Structure
-The app currently uses mock data for development and testing:
+### Estructura de Datos Simulados
+La aplicación actualmente usa datos simulados para desarrollo y pruebas:
 
 ```typescript
 const MOCK_DATA = {
   capacity: { current: 375, max: 500, percentage: 75 },
   checkers: [
     { id: '1', name: 'Juan Pérez', scanned: 87, verified: 82, rejected: 5 },
-    // ... more checkers
+    // ... más verificadores
   ],
   wristbands: [
     { 
@@ -281,78 +281,78 @@ const MOCK_DATA = {
       verifiedAt: '2024-01-15T10:30:00Z',
       verifiedBy: 'Juan Pérez' 
     },
-    // ... more wristbands
+    // ... más brazaletes
   ]
 };
 ```
 
-## 🔒 Security Features
+## 🔒 Características de Seguridad
 
-### Authentication
-- **Token-based Authentication**: JWT tokens for secure API access
-- **Secure Storage**: Tokens stored in platform-appropriate secure storage
-- **Auto-logout**: Automatic session cleanup on logout
-- **Error Handling**: Graceful handling of authentication failures
+### Autenticación
+- **Autenticación Basada en Tokens**: Tokens JWT para acceso seguro a la API
+- **Almacenamiento Seguro**: Tokens almacenados en almacenamiento seguro apropiado para la plataforma
+- **Auto-logout**: Limpieza automática de sesión al cerrar sesión
+- **Manejo de Errores**: Manejo elegante de fallas de autenticación
 
-### Data Protection
-- **Input Validation**: All user inputs validated before processing
-- **Error Boundaries**: Comprehensive error handling throughout the app
-- **Network Security**: HTTPS-only API communications
-- **Permission Management**: Proper camera permission handling
+### Protección de Datos
+- **Validación de Entrada**: Todas las entradas de usuario validadas antes del procesamiento
+- **Límites de Error**: Manejo integral de errores en toda la aplicación
+- **Seguridad de Red**: Comunicaciones API solo HTTPS
+- **Gestión de Permisos**: Manejo apropiado de permisos de cámara
 
-## 📱 Platform Compatibility
+## 📱 Compatibilidad de Plataformas
 
-### Supported Platforms
-- **iOS**: iPhone and iPad (iOS 13+)
-- **Android**: Android devices (API level 21+)
-- **Web**: Modern browsers (Chrome, Firefox, Safari, Edge)
+### Plataformas Soportadas
+- **iOS**: iPhone e iPad (iOS 13+)
+- **Android**: Dispositivos Android (API nivel 21+)
+- **Web**: Navegadores modernos (Chrome, Firefox, Safari, Edge)
 
-### Platform-Specific Features
+### Características Específicas de Plataforma
 ```typescript
 import { Platform } from 'react-native';
 
-// Example of platform-specific implementation
+// Ejemplo de implementación específica de plataforma
 const getStorageMethod = () => {
   if (Platform.OS === 'web') {
     return localStorage;
   } else {
-    return AsyncStorage; // For mobile platforms
+    return AsyncStorage; // Para plataformas móviles
   }
 };
 ```
 
-### Camera Permissions
+### Permisos de Cámara
 ```typescript
-// Camera permission handling
+// Manejo de permisos de cámara
 const [permission, requestPermission] = useCameraPermissions();
 
 if (!permission?.granted) {
-  // Show permission request UI
+  // Mostrar UI de solicitud de permisos
   return <PermissionScreen onRequest={requestPermission} />;
 }
 ```
 
-## 🧪 Testing Strategy
+## 🧪 Estrategia de Pruebas
 
-### Component Testing
-- Unit tests for individual components
-- Integration tests for service interactions
-- Mock data for consistent testing environments
+### Pruebas de Componentes
+- Pruebas unitarias para componentes individuales
+- Pruebas de integración para interacciones de servicios
+- Datos simulados para entornos de prueba consistentes
 
-### User Flow Testing
-1. **Authentication Flow**: Login → Dashboard navigation
-2. **Scanner Flow**: Camera access → QR scan → Verification
-3. **Data Flow**: Dashboard refresh → Real-time updates
-4. **Navigation Flow**: Tab switching → Profile access
+### Pruebas de Flujo de Usuario
+1. **Flujo de Autenticación**: Login → Navegación al Dashboard
+2. **Flujo del Escáner**: Acceso a cámara → Escaneo QR → Verificación
+3. **Flujo de Datos**: Actualización del dashboard → Actualizaciones en tiempo real
+4. **Flujo de Navegación**: Cambio de pestañas → Acceso al perfil
 
-### Performance Testing
-- **Load Testing**: Large datasets in wristband lists
-- **Network Testing**: Offline/online state handling
-- **Memory Testing**: Camera component lifecycle management
+### Pruebas de Rendimiento
+- **Pruebas de Carga**: Grandes conjuntos de datos en listas de brazaletes
+- **Pruebas de Red**: Manejo de estados offline/online
+- **Pruebas de Memoria**: Gestión del ciclo de vida del componente de cámara
 
-## 🚀 Deployment
+## 🚀 Despliegue
 
-### Build Configuration
+### Configuración de Build
 ```json
 // app.json
 {
@@ -369,33 +369,33 @@ if (!permission?.granted) {
 }
 ```
 
-### Production Build
+### Build de Producción
 ```bash
-# Build for production
+# Build para producción
 npx expo build:web
 
-# Build for mobile platforms
+# Build para plataformas móviles
 npx expo build:ios
 npx expo build:android
 ```
 
-### Environment Variables
+### Variables de Entorno
 ```bash
-# Production environment
+# Entorno de producción
 EXPO_PUBLIC_API_URL=https://api.production.com/api
 EXPO_PUBLIC_ENVIRONMENT=production
 ```
 
-## 🔄 State Management
+## 🔄 Gestión de Estado
 
-### Local State Patterns
+### Patrones de Estado Local
 ```typescript
-// Component state management
+// Gestión de estado de componentes
 const [data, setData] = useState(initialData);
 const [loading, setLoading] = useState(false);
 const [error, setError] = useState<string | null>(null);
 
-// Effect for data loading
+// Efecto para carga de datos
 useEffect(() => {
   const loadData = async () => {
     try {
@@ -413,18 +413,18 @@ useEffect(() => {
 }, []);
 ```
 
-### Global State (Authentication)
+### Estado Global (Autenticación)
 ```typescript
-// Authentication state managed in AuthService
+// Estado de autenticación gestionado en AuthService
 class AuthService {
   private static token: string | null = null;
   private static userEmail: string | null = null;
   
-  // State persistence across app sessions
+  // Persistencia de estado a través de sesiones de la aplicación
   static async getToken(): Promise<string | null> {
     if (this.token) return this.token;
     
-    // Load from storage
+    // Cargar desde almacenamiento
     if (Platform.OS === 'web') {
       this.token = localStorage.getItem(AUTH_TOKEN_KEY);
     }
@@ -434,18 +434,18 @@ class AuthService {
 }
 ```
 
-## 🎨 UI/UX Guidelines
+## 🎨 Guías UI/UX
 
-### Design Principles
-1. **Minimalism**: Clean, uncluttered interfaces
-2. **Consistency**: Uniform spacing, colors, and typography
-3. **Accessibility**: High contrast ratios and readable fonts
-4. **Responsiveness**: Adaptive layouts for all screen sizes
-5. **Feedback**: Clear visual feedback for all user actions
+### Principios de Diseño
+1. **Minimalismo**: Interfaces limpias y sin desorden
+2. **Consistencia**: Espaciado, colores y tipografía uniformes
+3. **Accesibilidad**: Altas relaciones de contraste y fuentes legibles
+4. **Responsividad**: Layouts adaptativos para todos los tamaños de pantalla
+5. **Retroalimentación**: Retroalimentación visual clara para todas las acciones del usuario
 
-### Component Patterns
+### Patrones de Componentes
 ```typescript
-// Consistent card component pattern
+// Patrón consistente de componente de tarjeta
 const CardComponent = ({ children, style }) => (
   <View style={[styles.card, style]}>
     {children}
@@ -466,79 +466,79 @@ const styles = StyleSheet.create({
 });
 ```
 
-### Animation Guidelines
-- **Subtle Transitions**: 300ms duration for most animations
-- **Easing**: Use `ease-in-out` for natural motion
-- **Performance**: Prefer `react-native-reanimated` for complex animations
-- **Accessibility**: Respect user's motion preferences
+### Guías de Animación
+- **Transiciones Sutiles**: Duración de 300ms para la mayoría de animaciones
+- **Easing**: Usar `ease-in-out` para movimiento natural
+- **Rendimiento**: Preferir `react-native-reanimated` para animaciones complejas
+- **Accesibilidad**: Respetar las preferencias de movimiento del usuario
 
-## 📈 Performance Optimization
+## 📈 Optimización de Rendimiento
 
-### Best Practices
-1. **Lazy Loading**: Components loaded on demand
-2. **Image Optimization**: Proper image sizing and caching
-3. **List Virtualization**: For large datasets (wristband lists)
-4. **Memory Management**: Proper cleanup of camera resources
-5. **Network Optimization**: Request batching and caching
+### Mejores Prácticas
+1. **Carga Perezosa**: Componentes cargados bajo demanda
+2. **Optimización de Imágenes**: Dimensionado y caché apropiado de imágenes
+3. **Virtualización de Listas**: Para grandes conjuntos de datos (listas de brazaletes)
+4. **Gestión de Memoria**: Limpieza apropiada de recursos de cámara
+5. **Optimización de Red**: Agrupación y caché de solicitudes
 
-### Code Splitting
+### División de Código
 ```typescript
-// Lazy loading for heavy components
+// Carga perezosa para componentes pesados
 const Scanner = lazy(() => import('./Scanner'));
 
-// Usage with Suspense
+// Uso con Suspense
 <Suspense fallback={<LoadingSpinner />}>
   <Scanner />
 </Suspense>
 ```
 
-### Memory Management
+### Gestión de Memoria
 ```typescript
-// Proper cleanup in useEffect
+// Limpieza apropiada en useEffect
 useEffect(() => {
   const interval = setInterval(fetchData, 30000);
   
   return () => {
-    clearInterval(interval); // Cleanup on unmount
+    clearInterval(interval); // Limpieza al desmontar
   };
 }, []);
 ```
 
-## 🐛 Troubleshooting
+## 🐛 Solución de Problemas
 
-### Common Issues
+### Problemas Comunes
 
-#### Camera Not Working
+#### Cámara No Funciona
 ```typescript
-// Check permissions
+// Verificar permisos
 const [permission, requestPermission] = useCameraPermissions();
 if (!permission?.granted) {
   await requestPermission();
 }
 
-// Ensure proper cleanup
+// Asegurar limpieza apropiada
 useEffect(() => {
   return () => {
-    // Camera cleanup logic
+    // Lógica de limpieza de cámara
   };
 }, []);
 ```
 
-#### Authentication Issues
+#### Problemas de Autenticación
 ```typescript
-// Clear stored tokens
-AuthService.logout(); // Clears all stored auth data
+// Limpiar tokens almacenados
+AuthService.logout(); // Limpia todos los datos de autenticación almacenados
 
-// Check token validity
+// Verificar validez del token
 const isValid = await AuthService.isAuthenticated();
 if (!isValid) {
   router.replace('/(auth)/login');
 }
 ```
 
-#### Network Connectivity
+#### Conectividad de Red
 ```typescript
-// Handle network errors gracefully
+// Manejar errores de red elegantemente
 try {
   const data = await ApiService.getData();
   setData(data);
@@ -551,71 +551,71 @@ try {
 }
 ```
 
-### Debug Mode
+### Modo Debug
 ```typescript
-// Enable debug logging
+// Habilitar logging de debug
 const DEBUG = __DEV__ || process.env.EXPO_PUBLIC_DEBUG === 'true';
 
 if (DEBUG) {
-  console.log('Debug info:', data);
+  console.log('Información de debug:', data);
 }
 ```
 
-## 📚 Additional Resources
+## 📚 Recursos Adicionales
 
-### Documentation Links
-- [Expo Documentation](https://docs.expo.dev/)
-- [React Native Documentation](https://reactnative.dev/docs/getting-started)
-- [Expo Router Documentation](https://expo.github.io/router/docs/)
-- [Expo Camera Documentation](https://docs.expo.dev/versions/latest/sdk/camera/)
+### Enlaces de Documentación
+- [Documentación de Expo](https://docs.expo.dev/)
+- [Documentación de React Native](https://reactnative.dev/docs/getting-started)
+- [Documentación de Expo Router](https://expo.github.io/router/docs/)
+- [Documentación de Expo Camera](https://docs.expo.dev/versions/latest/sdk/camera/)
 
-### Development Tools
+### Herramientas de Desarrollo
 - [Expo Dev Tools](https://docs.expo.dev/workflow/debugging/)
 - [React Native Debugger](https://github.com/jhen0409/react-native-debugger)
-- [Flipper](https://fbflipper.com/) (for advanced debugging)
+- [Flipper](https://fbflipper.com/) (para debugging avanzado)
 
-### Community Resources
-- [Expo Discord](https://discord.gg/expo)
-- [React Native Community](https://reactnative.dev/community/overview)
+### Recursos de la Comunidad
+- [Discord de Expo](https://discord.gg/expo)
+- [Comunidad de React Native](https://reactnative.dev/community/overview)
 - [Stack Overflow](https://stackoverflow.com/questions/tagged/expo)
 
-## 🤝 Contributing
+## 🤝 Contribuir
 
-### Development Workflow
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Flujo de Trabajo de Desarrollo
+1. Hacer fork del repositorio
+2. Crear una rama de característica (`git checkout -b feature/caracteristica-increible`)
+3. Hacer commit de los cambios (`git commit -m 'Agregar característica increíble'`)
+4. Push a la rama (`git push origin feature/caracteristica-increible`)
+5. Abrir un Pull Request
 
-### Code Standards
-- **TypeScript**: Strict type checking enabled
-- **ESLint**: Follow Expo's ESLint configuration
-- **Prettier**: Code formatting with 2-space indentation
-- **Naming**: Use descriptive, camelCase variable names
-- **Comments**: Document complex logic and API integrations
+### Estándares de Código
+- **TypeScript**: Verificación de tipos estricta habilitada
+- **ESLint**: Seguir la configuración ESLint de Expo
+- **Prettier**: Formateo de código con indentación de 2 espacios
+- **Nomenclatura**: Usar nombres de variables descriptivos en camelCase
+- **Comentarios**: Documentar lógica compleja e integraciones API
 
-### Testing Requirements
-- Unit tests for new components
-- Integration tests for API interactions
-- Manual testing on iOS, Android, and Web
-- Performance testing for camera operations
+### Requisitos de Pruebas
+- Pruebas unitarias para nuevos componentes
+- Pruebas de integración para interacciones API
+- Pruebas manuales en iOS, Android y Web
+- Pruebas de rendimiento para operaciones de cámara
 
-## 📄 License
+## 📄 Licencia
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
 
-## 📞 Support
+## 📞 Soporte
 
-For technical support or questions:
+Para soporte técnico o preguntas:
 - **Email**: soporte@qrscanner.com
-- **Phone**: +1 (555) 123-4567
-- **Documentation**: [Project Wiki](link-to-wiki)
+- **Teléfono**: +1 (555) 123-4567
+- **Documentación**: [Wiki del Proyecto](link-to-wiki)
 - **Issues**: [GitHub Issues](link-to-issues)
 
 ---
 
-**Version**: 1.0.0  
-**Last Updated**: January 2024  
+**Versión**: 1.0.0  
+**Última Actualización**: Enero 2024  
 **Expo SDK**: 52.0.30  
 **React Native**: 0.76.5

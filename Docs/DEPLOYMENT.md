@@ -1,39 +1,39 @@
-# Deployment Guide
+# Guía de Despliegue
 
-## Overview
+## Visión General
 
-This guide covers the deployment process for the QR Scanner Event Checker App across different platforms (iOS, Android, and Web) using Expo's build and deployment tools.
+Esta guía cubre el proceso de despliegue para la Aplicación QR Scanner Event Checker a través de diferentes plataformas (iOS, Android y Web) utilizando las herramientas de construcción y despliegue de Expo.
 
-## Prerequisites
+## Prerrequisitos
 
-### Development Environment
-- **Node.js**: 18.x or higher
-- **npm**: 8.x or higher
-- **Expo CLI**: Latest version (`npm install -g @expo/cli`)
-- **EAS CLI**: Latest version (`npm install -g eas-cli`)
+### Entorno de Desarrollo
+- **Node.js**: 18.x o superior
+- **npm**: 8.x o superior
+- **Expo CLI**: Última versión (`npm install -g @expo/cli`)
+- **EAS CLI**: Última versión (`npm install -g eas-cli`)
 
-### Accounts Required
-- **Expo Account**: For build services and deployment
-- **Apple Developer Account**: For iOS App Store deployment
-- **Google Play Console**: For Android Play Store deployment
-- **Web Hosting**: For web deployment (Netlify, Vercel, etc.)
+### Cuentas Requeridas
+- **Cuenta Expo**: Para servicios de construcción y despliegue
+- **Cuenta de Desarrollador Apple**: Para despliegue en App Store de iOS
+- **Google Play Console**: Para despliegue en Play Store de Android
+- **Hosting Web**: Para despliegue web (Netlify, Vercel, etc.)
 
-### Platform-Specific Requirements
+### Requisitos Específicos de Plataforma
 
-#### iOS Development
-- **macOS**: Required for iOS builds and testing
-- **Xcode**: Latest version from Mac App Store
-- **iOS Simulator**: For testing
-- **Apple Developer Program**: $99/year for App Store distribution
+#### Desarrollo iOS
+- **macOS**: Requerido para construcciones y pruebas de iOS
+- **Xcode**: Última versión desde Mac App Store
+- **Simulador iOS**: Para pruebas
+- **Programa de Desarrollador Apple**: $99/año para distribución en App Store
 
-#### Android Development
-- **Android Studio**: For testing and debugging
-- **Android SDK**: Installed via Android Studio
-- **Java Development Kit (JDK)**: Version 11 or higher
+#### Desarrollo Android
+- **Android Studio**: Para pruebas y depuración
+- **Android SDK**: Instalado vía Android Studio
+- **Java Development Kit (JDK)**: Versión 11 o superior
 
-## Project Configuration
+## Configuración del Proyecto
 
-### 1. App Configuration (`app.json`)
+### 1. Configuración de la Aplicación (`app.json`)
 ```json
 {
   "expo": {
@@ -51,7 +51,7 @@ This guide covers the deployment process for the QR Scanner Event Checker App ac
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.eventchecker",
+      "bundleIdentifier": "com.tuempresa.eventchecker",
       "buildNumber": "1"
     },
     "android": {
@@ -59,7 +59,7 @@ This guide covers the deployment process for the QR Scanner Event Checker App ac
         "foregroundImage": "./assets/images/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.yourcompany.eventchecker",
+      "package": "com.tuempresa.eventchecker",
       "versionCode": 1
     },
     "web": {
@@ -75,7 +75,7 @@ This guide covers the deployment process for the QR Scanner Event Checker App ac
 }
 ```
 
-### 2. EAS Build Configuration (`eas.json`)
+### 2. Configuración de Construcción EAS (`eas.json`)
 ```json
 {
   "cli": {
@@ -107,9 +107,9 @@ This guide covers the deployment process for the QR Scanner Event Checker App ac
 }
 ```
 
-### 3. Environment Variables
+### 3. Variables de Entorno
 
-#### Development (`.env`)
+#### Desarrollo (`.env`)
 ```env
 EXPO_PUBLIC_API_URL=http://localhost:3000/api
 EXPO_PUBLIC_ENVIRONMENT=development
@@ -123,185 +123,185 @@ EXPO_PUBLIC_ENVIRONMENT=staging
 EXPO_PUBLIC_DEBUG=false
 ```
 
-#### Production (`.env.production`)
+#### Producción (`.env.production`)
 ```env
 EXPO_PUBLIC_API_URL=https://api.xolotlcl.com/api
 EXPO_PUBLIC_ENVIRONMENT=production
 EXPO_PUBLIC_DEBUG=false
 ```
 
-## Build Process
+## Proceso de Construcción
 
-### 1. Local Development Build
+### 1. Construcción de Desarrollo Local
 ```bash
-# Install dependencies
+# Instalar dependencias
 npm install
 
-# Start development server
+# Iniciar servidor de desarrollo
 npx expo start
 
-# Run on specific platforms
+# Ejecutar en plataformas específicas
 npx expo start --ios
 npx expo start --android
 npx expo start --web
 ```
 
-### 2. Development Build (with EAS)
+### 2. Construcción de Desarrollo (con EAS)
 ```bash
-# Login to Expo
+# Iniciar sesión en Expo
 npx expo login
 
-# Configure EAS
+# Configurar EAS
 eas build:configure
 
-# Build for development
+# Construir para desarrollo
 eas build --platform ios --profile development
 eas build --platform android --profile development
 ```
 
-### 3. Preview Build
+### 3. Construcción de Vista Previa
 ```bash
-# Build preview versions for testing
+# Construir versiones de vista previa para pruebas
 eas build --platform ios --profile preview
 eas build --platform android --profile preview
 
-# Install on device
+# Instalar en dispositivo
 eas build:run --platform ios
 eas build:run --platform android
 ```
 
-### 4. Production Build
+### 4. Construcción de Producción
 ```bash
-# Build for production
+# Construir para producción
 eas build --platform ios --profile production
 eas build --platform android --profile production
 eas build --platform all --profile production
 ```
 
-## Platform-Specific Deployment
+## Despliegue Específico de Plataforma
 
-### iOS Deployment
+### Despliegue iOS
 
-#### 1. App Store Connect Setup
-1. **Create App Record**:
-   - Log into [App Store Connect](https://appstoreconnect.apple.com)
-   - Create new app with bundle identifier: `com.yourcompany.eventchecker`
-   - Fill in app information, categories, and pricing
+#### 1. Configuración de App Store Connect
+1. **Crear Registro de App**:
+   - Iniciar sesión en [App Store Connect](https://appstoreconnect.apple.com)
+   - Crear nueva app con identificador de bundle: `com.tuempresa.eventchecker`
+   - Completar información de la app, categorías y precios
 
-2. **App Information**:
+2. **Información de la App**:
    ```
-   Name: Event Checker App
-   Subtitle: QR Scanner for Event Access Control
-   Category: Business
-   Content Rating: 4+
+   Nombre: Event Checker App
+   Subtítulo: Escáner QR para Control de Acceso a Eventos
+   Categoría: Negocios
+   Clasificación de Contenido: 4+
    ```
 
-3. **App Store Screenshots**:
-   - iPhone 6.7": 1290 x 2796 pixels
-   - iPhone 6.5": 1242 x 2688 pixels
-   - iPhone 5.5": 1242 x 2208 pixels
-   - iPad Pro 12.9": 2048 x 2732 pixels
+3. **Capturas de Pantalla del App Store**:
+   - iPhone 6.7": 1290 x 2796 píxeles
+   - iPhone 6.5": 1242 x 2688 píxeles
+   - iPhone 5.5": 1242 x 2208 píxeles
+   - iPad Pro 12.9": 2048 x 2732 píxeles
 
-#### 2. Build and Submit
+#### 2. Construir y Enviar
 ```bash
-# Build for App Store
+# Construir para App Store
 eas build --platform ios --profile production
 
-# Submit to App Store
+# Enviar a App Store
 eas submit --platform ios
 ```
 
-#### 3. TestFlight Distribution
+#### 3. Distribución TestFlight
 ```bash
-# Build for TestFlight
+# Construir para TestFlight
 eas build --platform ios --profile preview
 
-# Submit to TestFlight
+# Enviar a TestFlight
 eas submit --platform ios --profile preview
 ```
 
-### Android Deployment
+### Despliegue Android
 
-#### 1. Google Play Console Setup
-1. **Create App**:
-   - Go to [Google Play Console](https://play.google.com/console)
-   - Create new app with package name: `com.yourcompany.eventchecker`
-   - Complete app details and content rating
+#### 1. Configuración de Google Play Console
+1. **Crear App**:
+   - Ir a [Google Play Console](https://play.google.com/console)
+   - Crear nueva app con nombre de paquete: `com.tuempresa.eventchecker`
+   - Completar detalles de la app y clasificación de contenido
 
-2. **App Information**:
+2. **Información de la App**:
    ```
-   Title: Event Checker App
-   Short Description: QR Scanner for Event Access Control
-   Full Description: Professional event management app for wristband verification and venue capacity monitoring.
-   Category: Business
-   Content Rating: Everyone
+   Título: Event Checker App
+   Descripción Corta: Escáner QR para Control de Acceso a Eventos
+   Descripción Completa: Aplicación profesional de gestión de eventos para verificación de brazaletes y monitoreo de capacidad del venue.
+   Categoría: Negocios
+   Clasificación de Contenido: Para todos
    ```
 
-3. **Store Listing Assets**:
-   - App Icon: 512 x 512 pixels
-   - Feature Graphic: 1024 x 500 pixels
-   - Screenshots: Various sizes for phones and tablets
+3. **Recursos de Listado en Store**:
+   - Icono de App: 512 x 512 píxeles
+   - Gráfico Destacado: 1024 x 500 píxeles
+   - Capturas de Pantalla: Varios tamaños para teléfonos y tablets
 
-#### 2. Build and Submit
+#### 2. Construir y Enviar
 ```bash
-# Build for Play Store
+# Construir para Play Store
 eas build --platform android --profile production
 
-# Submit to Play Store
+# Enviar a Play Store
 eas submit --platform android
 ```
 
-#### 3. Internal Testing
+#### 3. Pruebas Internas
 ```bash
-# Build for internal testing
+# Construir para pruebas internas
 eas build --platform android --profile preview
 
-# Distribute via internal testing track
+# Distribuir vía track de pruebas internas
 eas submit --platform android --track internal
 ```
 
-### Web Deployment
+### Despliegue Web
 
-#### 1. Build for Web
+#### 1. Construir para Web
 ```bash
-# Build static web assets
+# Construir recursos web estáticos
 npx expo export:web
 
-# Output will be in 'dist' directory
+# La salida estará en el directorio 'dist'
 ```
 
-#### 2. Deploy to Netlify
+#### 2. Desplegar a Netlify
 ```bash
-# Install Netlify CLI
+# Instalar CLI de Netlify
 npm install -g netlify-cli
 
-# Deploy to Netlify
+# Desplegar a Netlify
 netlify deploy --dir=dist --prod
 ```
 
-#### 3. Deploy to Vercel
+#### 3. Desplegar a Vercel
 ```bash
-# Install Vercel CLI
+# Instalar CLI de Vercel
 npm install -g vercel
 
-# Deploy to Vercel
+# Desplegar a Vercel
 vercel --prod
 ```
 
-#### 4. Custom Server Deployment
+#### 4. Despliegue en Servidor Personalizado
 ```bash
-# Build for custom server
+# Construir para servidor personalizado
 npx expo export:web
 
-# Copy dist folder to your web server
-scp -r dist/* user@yourserver.com:/var/www/html/
+# Copiar carpeta dist a tu servidor web
+scp -r dist/* usuario@tuservidor.com:/var/www/html/
 ```
 
-## CI/CD Pipeline
+## Pipeline CI/CD
 
-### GitHub Actions Workflow (`.github/workflows/build.yml`)
+### Flujo de Trabajo de GitHub Actions (`.github/workflows/build.yml`)
 ```yaml
-name: Build and Deploy
+name: Construir y Desplegar
 
 on:
   push:
@@ -316,55 +316,55 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Setup Node.js
+    - name: Configurar Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
         cache: 'npm'
     
-    - name: Install dependencies
+    - name: Instalar dependencias
       run: npm ci
     
-    - name: Run tests
+    - name: Ejecutar pruebas
       run: npm test
     
-    - name: Setup Expo
+    - name: Configurar Expo
       uses: expo/expo-github-action@v8
       with:
         expo-version: latest
         token: ${{ secrets.EXPO_TOKEN }}
     
-    - name: Build for preview
+    - name: Construir para vista previa
       if: github.ref != 'refs/heads/main'
       run: eas build --platform all --profile preview --non-interactive
     
-    - name: Build for production
+    - name: Construir para producción
       if: github.ref == 'refs/heads/main'
       run: eas build --platform all --profile production --non-interactive
     
-    - name: Deploy web
+    - name: Desplegar web
       if: github.ref == 'refs/heads/main'
       run: |
         npx expo export:web
         netlify deploy --dir=dist --prod --auth=${{ secrets.NETLIFY_AUTH_TOKEN }} --site=${{ secrets.NETLIFY_SITE_ID }}
 ```
 
-### Environment Secrets
-Configure these secrets in your CI/CD platform:
+### Secretos de Entorno
+Configurar estos secretos en tu plataforma CI/CD:
 ```
-EXPO_TOKEN=your_expo_access_token
-NETLIFY_AUTH_TOKEN=your_netlify_token
-NETLIFY_SITE_ID=your_netlify_site_id
-APPLE_ID=your_apple_id
-APPLE_APP_SPECIFIC_PASSWORD=your_app_password
-GOOGLE_SERVICE_ACCOUNT_KEY=your_service_account_json
+EXPO_TOKEN=tu_token_de_acceso_expo
+NETLIFY_AUTH_TOKEN=tu_token_netlify
+NETLIFY_SITE_ID=tu_id_sitio_netlify
+APPLE_ID=tu_apple_id
+APPLE_APP_SPECIFIC_PASSWORD=tu_contraseña_app
+GOOGLE_SERVICE_ACCOUNT_KEY=tu_clave_cuenta_servicio_json
 ```
 
-## Release Management
+## Gestión de Versiones
 
-### Version Management
+### Gestión de Versiones
 ```bash
-# Update version in app.json
+# Actualizar versión en app.json
 {
   "expo": {
     "version": "1.1.0",
@@ -377,94 +377,94 @@ GOOGLE_SERVICE_ACCOUNT_KEY=your_service_account_json
   }
 }
 
-# Create git tag
+# Crear etiqueta git
 git tag v1.1.0
 git push origin v1.1.0
 ```
 
-### Release Notes Template
+### Plantilla de Notas de Versión
 ```markdown
-## Version 1.1.0
+## Versión 1.1.0
 
-### New Features
-- Enhanced QR scanner with improved accuracy
-- Real-time dashboard updates
-- Offline mode support
+### Nuevas Características
+- Escáner QR mejorado con mayor precisión
+- Actualizaciones de dashboard en tiempo real
+- Soporte para modo offline
 
-### Improvements
-- Faster app startup time
-- Better error handling
-- Updated UI components
+### Mejoras
+- Tiempo de inicio de app más rápido
+- Mejor manejo de errores
+- Componentes UI actualizados
 
-### Bug Fixes
-- Fixed camera permission issues
-- Resolved login timeout problems
-- Fixed data synchronization bugs
+### Correcciones de Errores
+- Corregidos problemas de permisos de cámara
+- Resueltos problemas de timeout de login
+- Corregidos errores de sincronización de datos
 
-### Technical Changes
-- Updated to Expo SDK 52
-- Improved API error handling
-- Enhanced security measures
+### Cambios Técnicos
+- Actualizado a Expo SDK 52
+- Mejorado manejo de errores API
+- Medidas de seguridad mejoradas
 ```
 
-## Monitoring and Analytics
+## Monitoreo y Análisis
 
-### 1. Expo Analytics
+### 1. Análisis de Expo
 ```typescript
-// Track app usage
+// Seguimiento de uso de app
 import { Analytics } from 'expo-analytics';
 
 const analytics = new Analytics('UA-XXXXXXXXX-X');
 
-// Track screen views
+// Seguimiento de vistas de pantalla
 analytics.screen('Dashboard');
 analytics.screen('Scanner');
 
-// Track events
+// Seguimiento de eventos
 analytics.event('QR_Scan', {
-  category: 'User Action',
-  label: 'Successful Scan'
+  category: 'Acción de Usuario',
+  label: 'Escaneo Exitoso'
 });
 ```
 
-### 2. Crash Reporting
+### 2. Reporte de Errores
 ```typescript
-// Setup Sentry for crash reporting
+// Configurar Sentry para reporte de errores
 import * as Sentry from '@sentry/react-native';
 
 Sentry.init({
-  dsn: 'YOUR_SENTRY_DSN',
+  dsn: 'TU_SENTRY_DSN',
 });
 
-// Capture errors
+// Capturar errores
 try {
-  // App logic
+  // Lógica de la app
 } catch (error) {
   Sentry.captureException(error);
 }
 ```
 
-### 3. Performance Monitoring
+### 3. Monitoreo de Rendimiento
 ```typescript
-// Monitor app performance
+// Monitorear rendimiento de la app
 import { Performance } from 'expo-performance';
 
 const startTime = Performance.now();
-// Perform operation
+// Realizar operación
 const endTime = Performance.now();
 const duration = endTime - startTime;
 
 if (duration > 1000) {
-  console.warn(`Slow operation: ${duration}ms`);
+  console.warn(`Operación lenta: ${duration}ms`);
 }
 ```
 
-## Security Considerations
+## Consideraciones de Seguridad
 
-### 1. Code Obfuscation
+### 1. Ofuscación de Código
 ```bash
-# Enable code obfuscation for production
-# In eas.json
+# Habilitar ofuscación de código para producción
+# En eas.json
 {
   "build": {
     "production": {
@@ -476,9 +476,9 @@ if (duration > 1000) {
 }
 ```
 
-### 2. API Security
+### 2. Seguridad API
 ```typescript
-// Secure API configuration
+// Configuración API segura
 const API_CONFIG = {
   baseURL: process.env.EXPO_PUBLIC_API_URL,
   timeout: 10000,
@@ -488,98 +488,98 @@ const API_CONFIG = {
   },
 };
 
-// Certificate pinning for production
+// Certificate pinning para producción
 if (process.env.EXPO_PUBLIC_ENVIRONMENT === 'production') {
   API_CONFIG.certificatePinning = {
     hostname: 'api.xolotlcl.com',
-    publicKeyHash: 'YOUR_PUBLIC_KEY_HASH'
+    publicKeyHash: 'TU_HASH_CLAVE_PUBLICA'
   };
 }
 ```
 
-### 3. Environment Variables Security
+### 3. Seguridad de Variables de Entorno
 ```bash
-# Never commit sensitive data
-# Use Expo's secure environment variables
+# Nunca hacer commit de datos sensibles
+# Usar variables de entorno seguras de Expo
 npx expo env:set EXPO_PUBLIC_API_URL https://api.xolotlcl.com/api
-npx expo env:set --environment production API_SECRET your_secret_key
+npx expo env:set --environment production API_SECRET tu_clave_secreta
 ```
 
-## Troubleshooting
+## Solución de Problemas
 
-### Common Build Issues
+### Problemas Comunes de Construcción
 
-#### 1. iOS Build Failures
+#### 1. Fallas de Construcción iOS
 ```bash
-# Clear Expo cache
+# Limpiar caché de Expo
 npx expo r -c
 
-# Update iOS dependencies
+# Actualizar dependencias iOS
 cd ios && pod install && cd ..
 
-# Check certificate validity
+# Verificar validez del certificado
 eas credentials
 ```
 
-#### 2. Android Build Failures
+#### 2. Fallas de Construcción Android
 ```bash
-# Clean Android build
+# Limpiar construcción Android
 cd android && ./gradlew clean && cd ..
 
-# Update Android dependencies
+# Actualizar dependencias Android
 npx expo install --fix
 
-# Check keystore configuration
+# Verificar configuración de keystore
 eas credentials
 ```
 
-#### 3. Web Build Issues
+#### 3. Problemas de Construcción Web
 ```bash
-# Clear web cache
+# Limpiar caché web
 rm -rf .expo/web
 
-# Rebuild web assets
+# Reconstruir recursos web
 npx expo export:web --clear
 ```
 
-### Performance Issues
+### Problemas de Rendimiento
 ```bash
-# Analyze bundle size
+# Analizar tamaño del bundle
 npx expo export:web --analyze
 
-# Check for memory leaks
+# Verificar memory leaks
 npx expo start --dev-client --clear
 
-# Profile app performance
+# Perfilar rendimiento de la app
 npx expo start --profiling
 ```
 
-### Deployment Failures
+### Fallas de Despliegue
 ```bash
-# Check EAS build status
+# Verificar estado de construcción EAS
 eas build:list
 
-# View build logs
+# Ver logs de construcción
 eas build:view [BUILD_ID]
 
-# Retry failed builds
+# Reintentar construcciones fallidas
 eas build --platform ios --profile production --clear-cache
 ```
 
-## Maintenance
+## Mantenimiento
 
-### Regular Updates
-- **Monthly**: Update Expo SDK and dependencies
-- **Quarterly**: Review and update security configurations
-- **Bi-annually**: Audit third-party dependencies
-- **Annually**: Review and update certificates and keys
+### Actualizaciones Regulares
+- **Mensual**: Actualizar Expo SDK y dependencias
+- **Trimestral**: Revisar y actualizar configuraciones de seguridad
+- **Semestral**: Auditar dependencias de terceros
+- **Anual**: Revisar y actualizar certificados y claves
 
-### Monitoring Checklist
-- [ ] App Store/Play Store reviews and ratings
-- [ ] Crash reports and error logs
-- [ ] Performance metrics and load times
-- [ ] User analytics and engagement
-- [ ] Security vulnerability scans
-- [ ] API endpoint health checks
+### Lista de Verificación de Monitoreo
+- [ ] Reseñas y calificaciones de App Store/Play Store
+- [ ] Reportes de errores y logs de error
+- [ ] Métricas de rendimiento y tiempos de carga
+- [ ] Análisis de usuario y engagement
+- [ ] Escaneos de vulnerabilidades de seguridad
+- [ ] Verificaciones de salud de endpoints API
 
-This deployment guide provides comprehensive instructions for building, deploying, and maintaining the QR Scanner Event Checker App across all supported platforms.
+Esta guía de despliegue proporciona instrucciones completas para construir, desplegar y mantener la Aplicación QR Scanner Event Checker a través de todas las plataformas soportadas.

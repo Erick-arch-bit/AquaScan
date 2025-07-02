@@ -1,92 +1,92 @@
-# Architecture Documentation
+# Documentación de Arquitectura
 
-## System Overview
+## Visión General del Sistema
 
-The QR Scanner Event Checker App follows a modular, component-based architecture built on React Native with Expo. The application is designed for scalability, maintainability, and cross-platform compatibility.
+La Aplicación QR Scanner Event Checker sigue una arquitectura modular basada en componentes construida sobre React Native con Expo. La aplicación está diseñada para escalabilidad, mantenibilidad y compatibilidad multiplataforma.
 
-## Architecture Patterns
+## Patrones de Arquitectura
 
-### 1. Component-Based Architecture
+### 1. Arquitectura Basada en Componentes
 ```
 ┌─────────────────────────────────────┐
-│           Presentation Layer        │
+│           Capa de Presentación      │
 ├─────────────────────────────────────┤
-│  Screens  │  Components  │  Hooks   │
+│  Pantallas │  Componentes │  Hooks  │
 ├─────────────────────────────────────┤
-│           Business Logic Layer      │
+│           Capa de Lógica de Negocio │
 ├─────────────────────────────────────┤
-│  Services │  API Client │  Utils    │
+│  Servicios │  Cliente API │  Utils  │
 ├─────────────────────────────────────┤
-│           Data Layer               │
+│           Capa de Datos             │
 ├─────────────────────────────────────┤
-│  Storage  │  Cache      │  State    │
+│  Storage   │  Cache      │  Estado  │
 └─────────────────────────────────────┘
 ```
 
-### 2. Navigation Architecture
+### 2. Arquitectura de Navegación
 ```
-Root Layout
-├── Authentication Stack
-│   └── Login Screen
-└── Tab Navigator
-    ├── Dashboard Tab
-    ├── Wristbands Tab
-    ├── Scanner Tab
-    └── Profile Screen (Modal)
+Layout Raíz
+├── Stack de Autenticación
+│   └── Pantalla de Login
+└── Navegador de Pestañas
+    ├── Pestaña Dashboard
+    ├── Pestaña Brazaletes
+    ├── Pestaña Escáner
+    └── Pantalla de Perfil (Modal)
 ```
 
-### 3. State Management Pattern
-- **Local State**: React hooks (useState, useEffect)
-- **Global State**: Service-based singleton pattern
-- **Persistent State**: Platform-specific storage (localStorage/AsyncStorage)
+### 3. Patrón de Gestión de Estado
+- **Estado Local**: Hooks de React (useState, useEffect)
+- **Estado Global**: Patrón singleton basado en servicios
+- **Estado Persistente**: Almacenamiento específico de plataforma (localStorage/AsyncStorage)
 
-## Core Components
+## Componentes Centrales
 
-### 1. Authentication System
+### 1. Sistema de Autenticación
 
-#### AuthService Architecture
+#### Arquitectura AuthService
 ```typescript
 class AuthService {
-  // Singleton pattern for global state
+  // Patrón singleton para estado global
   private static token: string | null = null;
   private static userEmail: string | null = null;
   
-  // Public interface
+  // Interfaz pública
   static async login(email: string, password: string)
   static async logout()
   static async isAuthenticated(): Promise<boolean>
   static async getAuthHeaders(): Promise<HeadersInit>
   
-  // Private methods
+  // Métodos privados
   private static async storeToken(token: string)
   private static clearLocalData()
 }
 ```
 
-#### Authentication Flow
+#### Flujo de Autenticación
 ```mermaid
 graph TD
-    A[App Start] --> B{Token Exists?}
-    B -->|Yes| C[Validate Token]
-    B -->|No| D[Show Login]
-    C -->|Valid| E[Navigate to Dashboard]
-    C -->|Invalid| D
-    D --> F[User Login]
-    F -->|Success| G[Store Token]
-    F -->|Failure| H[Show Error]
+    A[Inicio de App] --> B{¿Token Existe?}
+    B -->|Sí| C[Validar Token]
+    B -->|No| D[Mostrar Login]
+    C -->|Válido| E[Navegar a Dashboard]
+    C -->|Inválido| D
+    D --> F[Login de Usuario]
+    F -->|Éxito| G[Almacenar Token]
+    F -->|Fallo| H[Mostrar Error]
     G --> E
     H --> D
 ```
 
-### 2. API Service Layer
+### 2. Capa de Servicio API
 
-#### Service Architecture
+#### Arquitectura del Servicio
 ```typescript
 class ApiService {
-  // Mock data simulation
+  // Simulación de datos mock
   private static async mockRequest<T>(data: T): Promise<T>
   
-  // Public API methods
+  // Métodos API públicos
   static async getVenueCapacity()
   static async getCheckersSummary()
   static async getWristbands()
@@ -95,19 +95,19 @@ class ApiService {
 }
 ```
 
-#### Data Flow Pattern
+#### Patrón de Flujo de Datos
 ```
-Component Request → Service Method → Mock Delay → Data Response → Component Update
+Solicitud de Componente → Método de Servicio → Retraso Mock → Respuesta de Datos → Actualización de Componente
 ```
 
-### 3. Camera Integration
+### 3. Integración de Cámara
 
-#### Camera Component Architecture
+#### Arquitectura del Componente de Cámara
 ```typescript
-// Permission Management
+// Gestión de Permisos
 const [permission, requestPermission] = useCameraPermissions();
 
-// Camera Configuration
+// Configuración de Cámara
 <CameraView
   style={styles.camera}
   onBarcodeScanned={handleBarCodeScanned}
@@ -115,32 +115,32 @@ const [permission, requestPermission] = useCameraPermissions();
     barcodeTypes: ['qr'],
   }}
 >
-  {/* Overlay Components */}
+  {/* Componentes de Overlay */}
 </CameraView>
 ```
 
-#### Scanner State Machine
+#### Máquina de Estados del Escáner
 ```mermaid
 stateDiagram-v2
-    [*] --> PermissionCheck
-    PermissionCheck --> RequestPermission: Not Granted
-    PermissionCheck --> CameraReady: Granted
-    RequestPermission --> CameraReady: Granted
-    RequestPermission --> PermissionDenied: Denied
-    CameraReady --> Scanning
-    Scanning --> CodeDetected: QR Found
-    CodeDetected --> Verifying
-    Verifying --> Success: Valid Code
-    Verifying --> Error: Invalid Code
-    Success --> Scanning: Reset
-    Error --> Scanning: Reset
+    [*] --> VerificacionPermisos
+    VerificacionPermisos --> SolicitarPermiso: No Otorgado
+    VerificacionPermisos --> CamaraLista: Otorgado
+    SolicitarPermiso --> CamaraLista: Otorgado
+    SolicitarPermiso --> PermisoDenegado: Denegado
+    CamaraLista --> Escaneando
+    Escaneando --> CodigoDetectado: QR Encontrado
+    CodigoDetectado --> Verificando
+    Verificando --> Exito: Código Válido
+    Verificando --> Error: Código Inválido
+    Exito --> Escaneando: Reset
+    Error --> Escaneando: Reset
 ```
 
-## Data Models
+## Modelos de Datos
 
-### 1. Type Definitions
+### 1. Definiciones de Tipos
 ```typescript
-// User Authentication
+// Autenticación de Usuario
 interface LoginResponse {
   status: number;
   access_token: string;
@@ -152,7 +152,7 @@ interface User {
   token: string;
 }
 
-// Venue Data
+// Datos del Venue
 interface VenueCapacity {
   current: number;
   max: number;
@@ -167,7 +167,7 @@ interface CheckerData {
   rejected: number;
 }
 
-// Wristband Management
+// Gestión de Brazaletes
 interface Wristband {
   id: string;
   name: string;
@@ -182,9 +182,9 @@ interface VerificationResult {
 }
 ```
 
-### 2. Data Validation
+### 2. Validación de Datos
 ```typescript
-// Input validation patterns
+// Patrones de validación de entrada
 const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -195,36 +195,36 @@ const validateQRCode = (code: string): boolean => {
 };
 ```
 
-## Component Hierarchy
+## Jerarquía de Componentes
 
-### 1. Screen Components
+### 1. Componentes de Pantalla
 ```
 app/
-├── _layout.tsx                 # Root navigation setup
+├── _layout.tsx                 # Configuración de navegación raíz
 ├── (auth)/
-│   ├── _layout.tsx            # Auth stack navigator
-│   └── login.tsx              # Login screen component
+│   ├── _layout.tsx            # Navegador de stack de autenticación
+│   └── login.tsx              # Componente de pantalla de login
 └── (tabs)/
-    ├── _layout.tsx            # Tab navigator with headers
-    ├── index.tsx              # Dashboard screen
-    ├── wristbands.tsx         # Wristbands management
-    ├── scanner.tsx            # QR scanner interface
-    └── profile.tsx            # User profile
+    ├── _layout.tsx            # Navegador de pestañas con encabezados
+    ├── index.tsx              # Pantalla de dashboard
+    ├── wristbands.tsx         # Gestión de brazaletes
+    ├── scanner.tsx            # Interfaz de escáner QR
+    └── profile.tsx            # Perfil de usuario
 ```
 
-### 2. Reusable Components
+### 2. Componentes Reutilizables
 ```
 components/
 ├── dashboard/
-│   ├── VenueCapacity.tsx      # Capacity gauge component
-│   └── CheckerSummary.tsx     # Performance table
+│   ├── VenueCapacity.tsx      # Componente medidor de capacidad
+│   └── CheckerSummary.tsx     # Tabla de rendimiento
 └── wristbands/
-    └── WristbandItem.tsx      # Individual wristband card
+    └── WristbandItem.tsx      # Tarjeta individual de brazalete
 ```
 
-### 3. Component Communication
+### 3. Comunicación de Componentes
 ```typescript
-// Parent to Child: Props
+// Padre a Hijo: Props
 <VenueCapacity 
   current={capacity.current}
   max={capacity.max}
@@ -232,37 +232,37 @@ components/
   isLoading={isLoading}
 />
 
-// Child to Parent: Callbacks
+// Hijo a Padre: Callbacks
 <WristbandItem 
   wristband={item}
   onStatusChange={(id, status) => updateStatus(id, status)}
 />
 
-// Sibling Communication: Shared State
+// Comunicación entre Hermanos: Estado Compartido
 const [selectedFilter, setSelectedFilter] = useState('all');
 ```
 
-## Performance Optimization
+## Optimización de Rendimiento
 
-### 1. Rendering Optimization
+### 1. Optimización de Renderizado
 ```typescript
-// Memoization for expensive calculations
+// Memoización para cálculos costosos
 const memoizedValue = useMemo(() => {
   return expensiveCalculation(data);
 }, [data]);
 
-// Callback memoization
+// Memoización de callbacks
 const memoizedCallback = useCallback((id: string) => {
   handleItemPress(id);
 }, [handleItemPress]);
 
-// Component memoization
+// Memoización de componentes
 const MemoizedComponent = React.memo(ExpensiveComponent);
 ```
 
-### 2. List Performance
+### 2. Rendimiento de Listas
 ```typescript
-// FlatList optimization
+// Optimización de FlatList
 <FlatList
   data={filteredWristbands}
   renderItem={({ item }) => <WristbandItem wristband={item} />}
@@ -278,9 +278,9 @@ const MemoizedComponent = React.memo(ExpensiveComponent);
 />
 ```
 
-### 3. Memory Management
+### 3. Gestión de Memoria
 ```typescript
-// Cleanup patterns
+// Patrones de limpieza
 useEffect(() => {
   const interval = setInterval(fetchData, 30000);
   
@@ -289,10 +289,10 @@ useEffect(() => {
   };
 }, []);
 
-// Camera cleanup
+// Limpieza de cámara
 useEffect(() => {
   return () => {
-    // Camera resource cleanup
+    // Limpieza de recursos de cámara
     if (cameraRef.current) {
       cameraRef.current.pausePreview();
     }
@@ -300,9 +300,9 @@ useEffect(() => {
 }, []);
 ```
 
-## Error Handling Strategy
+## Estrategia de Manejo de Errores
 
-### 1. Error Boundaries
+### 1. Límites de Error
 ```typescript
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -315,7 +315,7 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error('Error capturado por boundary:', error, errorInfo);
   }
 
   render() {
@@ -328,9 +328,9 @@ class ErrorBoundary extends React.Component {
 }
 ```
 
-### 2. API Error Handling
+### 2. Manejo de Errores API
 ```typescript
-// Centralized error handling
+// Manejo centralizado de errores
 const handleApiError = (error: Error): string => {
   if (error.message.includes('network')) {
     return 'Error de conexión. Verifique su internet.';
@@ -341,7 +341,7 @@ const handleApiError = (error: Error): string => {
   }
 };
 
-// Usage in components
+// Uso en componentes
 try {
   const data = await ApiService.getData();
   setData(data);
@@ -351,36 +351,36 @@ try {
 }
 ```
 
-### 3. User Feedback Patterns
+### 3. Patrones de Retroalimentación al Usuario
 ```typescript
-// Loading states
+// Estados de carga
 const [isLoading, setIsLoading] = useState(false);
 
-// Error states
+// Estados de error
 const [error, setError] = useState<string | null>(null);
 
-// Success feedback
+// Retroalimentación de éxito
 const [notification, setNotification] = useState<{
   type: 'success' | 'error';
   message: string;
 } | null>(null);
 ```
 
-## Security Architecture
+## Arquitectura de Seguridad
 
-### 1. Authentication Security
+### 1. Seguridad de Autenticación
 ```typescript
-// Token storage
+// Almacenamiento de tokens
 const storeToken = async (token: string) => {
   if (Platform.OS === 'web') {
     localStorage.setItem(AUTH_TOKEN_KEY, token);
   } else {
-    // Use secure storage on mobile
+    // Usar almacenamiento seguro en móvil
     await SecureStore.setItemAsync(AUTH_TOKEN_KEY, token);
   }
 };
 
-// Request headers
+// Encabezados de solicitud
 const getAuthHeaders = async (): Promise<HeadersInit> => {
   const token = await getToken();
   return {
@@ -390,62 +390,62 @@ const getAuthHeaders = async (): Promise<HeadersInit> => {
 };
 ```
 
-### 2. Input Validation
+### 2. Validación de Entrada
 ```typescript
-// Client-side validation
+// Validación del lado del cliente
 const validateInput = (input: string): boolean => {
-  // Sanitize and validate input
+  // Sanitizar y validar entrada
   const sanitized = input.trim();
   return sanitized.length > 0 && sanitized.length < 1000;
 };
 
-// QR code validation
+// Validación de código QR
 const validateQRCode = (code: string): boolean => {
-  // Check format and content
+  // Verificar formato y contenido
   return /^[A-Z0-9-]+$/.test(code);
 };
 ```
 
-### 3. Permission Management
+### 3. Gestión de Permisos
 ```typescript
-// Camera permissions
+// Permisos de cámara
 const requestCameraPermission = async () => {
   const { status } = await Camera.requestCameraPermissionsAsync();
   return status === 'granted';
 };
 
-// Permission state handling
+// Manejo de estado de permisos
 if (!permission?.granted) {
   return <PermissionRequestScreen />;
 }
 ```
 
-## Testing Architecture
+## Arquitectura de Pruebas
 
-### 1. Component Testing
+### 1. Pruebas de Componentes
 ```typescript
-// Unit test example
+// Ejemplo de prueba unitaria
 import { render, fireEvent } from '@testing-library/react-native';
 import LoginScreen from '../login';
 
 describe('LoginScreen', () => {
-  it('should handle login submission', () => {
+  it('debería manejar envío de login', () => {
     const { getByPlaceholderText, getByText } = render(<LoginScreen />);
     
     fireEvent.changeText(getByPlaceholderText('Email'), 'test@example.com');
     fireEvent.changeText(getByPlaceholderText('Password'), 'password');
     fireEvent.press(getByText('Login'));
     
-    // Assert expected behavior
+    // Afirmar comportamiento esperado
   });
 });
 ```
 
-### 2. Service Testing
+### 2. Pruebas de Servicios
 ```typescript
-// API service testing
+// Pruebas de servicio API
 describe('ApiService', () => {
-  it('should verify wristband successfully', async () => {
+  it('debería verificar brazalete exitosamente', async () => {
     const result = await ApiService.verifyWristband('valid-code');
     expect(result.valid).toBe(true);
     expect(result.message).toContain('verificado');
@@ -453,21 +453,21 @@ describe('ApiService', () => {
 });
 ```
 
-### 3. Integration Testing
+### 3. Pruebas de Integración
 ```typescript
-// End-to-end flow testing
-describe('Authentication Flow', () => {
-  it('should complete login to dashboard flow', async () => {
-    // Test complete user journey
+// Pruebas de flujo end-to-end
+describe('Flujo de Autenticación', () => {
+  it('debería completar flujo de login a dashboard', async () => {
+    // Probar viaje completo del usuario
     await loginUser('test@example.com', 'password');
     await waitFor(() => expect(getDashboard()).toBeVisible());
   });
 });
 ```
 
-## Deployment Architecture
+## Arquitectura de Despliegue
 
-### 1. Build Configuration
+### 1. Configuración de Build
 ```json
 {
   "expo": {
@@ -492,9 +492,9 @@ describe('Authentication Flow', () => {
 }
 ```
 
-### 2. Environment Management
+### 2. Gestión de Entornos
 ```typescript
-// Environment configuration
+// Configuración de entorno
 const config = {
   development: {
     apiUrl: 'http://localhost:3000/api',
@@ -516,47 +516,47 @@ const getConfig = () => {
 };
 ```
 
-### 3. Platform-Specific Builds
+### 3. Builds Específicos de Plataforma
 ```bash
-# Web build
+# Build web
 npx expo export:web
 
-# iOS build
+# Build iOS
 npx expo build:ios
 
-# Android build
+# Build Android
 npx expo build:android
 
-# Development build
+# Build de desarrollo
 npx expo install --fix
 npx expo run:ios
 npx expo run:android
 ```
 
-## Monitoring and Analytics
+## Monitoreo y Análisis
 
-### 1. Error Tracking
+### 1. Seguimiento de Errores
 ```typescript
-// Error reporting
+// Reporte de errores
 const reportError = (error: Error, context: string) => {
   if (__DEV__) {
-    console.error(`Error in ${context}:`, error);
+    console.error(`Error en ${context}:`, error);
   } else {
-    // Send to error tracking service
+    // Enviar a servicio de seguimiento de errores
     ErrorTracker.captureException(error, { context });
   }
 };
 ```
 
-### 2. Performance Monitoring
+### 2. Monitoreo de Rendimiento
 ```typescript
-// Performance tracking
+// Seguimiento de rendimiento
 const trackPerformance = (operation: string, duration: number) => {
   if (duration > 1000) {
-    console.warn(`Slow operation: ${operation} took ${duration}ms`);
+    console.warn(`Operación lenta: ${operation} tomó ${duration}ms`);
   }
   
-  // Send to analytics
+  // Enviar a análisis
   Analytics.track('performance', {
     operation,
     duration,
@@ -565,9 +565,9 @@ const trackPerformance = (operation: string, duration: number) => {
 };
 ```
 
-### 3. User Analytics
+### 3. Análisis de Usuario
 ```typescript
-// User behavior tracking
+// Seguimiento de comportamiento de usuario
 const trackUserAction = (action: string, properties?: object) => {
   Analytics.track(action, {
     ...properties,
@@ -576,9 +576,9 @@ const trackUserAction = (action: string, properties?: object) => {
   });
 };
 
-// Usage
+// Uso
 trackUserAction('qr_scan_success', { wristbandId: 'WB-123456' });
 trackUserAction('login_attempt', { email: userEmail });
 ```
 
-This architecture documentation provides a comprehensive overview of the system design, patterns, and implementation details that make the QR Scanner Event Checker App robust, maintainable, and scalable.
+Esta documentación de arquitectura proporciona una visión integral del diseño del sistema, patrones e detalles de implementación que hacen que la Aplicación QR Scanner Event Checker sea robusta, mantenible y escalable.
