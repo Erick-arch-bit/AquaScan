@@ -601,18 +601,6 @@ if (DEBUG) {
 - Manual testing on iOS, Android, and Web
 - Performance testing for camera operations
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-For technical support or questions:
-- **Email**: soporte@qrscanner.com
-- **Phone**: +1 (555) 123-4567
-- **Documentation**: [Project Wiki](link-to-wiki)
-- **Issues**: [GitHub Issues](link-to-issues)
-
 ---
 
 **Version**: 1.0.0  
