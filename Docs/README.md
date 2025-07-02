@@ -608,7 +608,3 @@ if (DEBUG) {
 **React Native**: 0.79.4
 =======
 ---
-
-**Version**: 1.0.0  
-**Expo SDK**: 53.0.12  
-**React Native**: 0.79.4
