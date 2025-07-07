@@ -1,24 +1,52 @@
 import { ApiService } from '@/services/api';
 import { AuthService } from '@/services/auth';
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { useRouter } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { ChartBar as BarChart3, CircleCheck as CheckCircle, QrCode, Circle as XCircle } from 'lucide-react-native';
-import { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+type VerificationResult = 'success' | 'error' | null;
 
 export default function ScannerScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [qrData, setQrData] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-  const [verificationResult, setVerificationResult] = useState<'success' | 'error' | null>(null);
+  const [verificationResult, setVerificationResult] = useState<VerificationResult>(null);
   const [verificationMessage, setVerificationMessage] = useState('');
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [isCameraActive, setIsCameraActive] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
   
   const router = useRouter();
+
+  // Handle tab focus/unfocus to manage camera lifecycle
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true;
+      
+      const activate = async () => {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        if (isActive) {
+          setIsCameraActive(true);
+          inputRef.current?.focus();
+        }
+      };
+
+      activate();
+
+      return () => {
+        isActive = false;
+        setIsCameraActive(false);
+        setScanned(false);
+        setQrData('');
+        setModalVisible(false);
+      };
+    }, [])
+  );
 
   useEffect(() => {
     // Load user data
@@ -27,30 +55,34 @@ export default function ScannerScreen() {
       setUserEmail(email);
     };
     loadUserData();
-
-    // Focus the hidden input when the component mounts
-    setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
   }, []);
 
   // Animate the scan button
   useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(scaleAnim, {
-          toValue: 1.05,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-  }, []);
+    let animation: Animated.CompositeAnimation;
+    
+    if (isCameraActive) {
+      animation = Animated.loop(
+        Animated.sequence([
+          Animated.timing(scaleAnim, {
+            toValue: 1.05,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleAnim, {
+            toValue: 1,
+            duration: 2000,
+            useNativeDriver: true,
+          }),
+        ])
+      );
+      animation.start();
+    }
+
+    return () => {
+      animation?.stop();
+    };
+  }, [isCameraActive, scaleAnim]);
 
   // Animation for the verification modal
   useEffect(() => {
@@ -65,20 +97,24 @@ export default function ScannerScreen() {
     }
   }, [modalVisible, opacityAnim]);
 
-  const handleBarCodeScanned = async ({ data }) => {
-    if (scanned) return;
+  const handleBarCodeScanned = async ({ data }: { data: string }) => {
+    if (scanned || !isCameraActive) return;
     
     setScanned(true);
     setQrData(data);
     await verifyQrCode(data);
   };
 
-  const handleManualEntry = async (text) => {
+  const handleManualEntry = (text: string) => {
     setQrData(text);
   };
 
-  const verifyQrCode = async (data) => {
+  const verifyQrCode = async (data: string) => {
     try {
+      if (!data.trim()) {
+        throw new Error('Código vacío');
+      }
+
       const result = await ApiService.verifyWristband(data);
       
       if (result.valid) {
@@ -99,7 +135,11 @@ export default function ScannerScreen() {
     } catch (error) {
       console.error('Error verifying QR code:', error);
       setVerificationResult('error');
-      setVerificationMessage('Error de conexión. Intente nuevamente.');
+      setVerificationMessage(
+        error instanceof Error 
+          ? error.message 
+          : 'Error de conexión. Intente nuevamente.'
+      );
       setModalVisible(true);
     }
   };
@@ -114,7 +154,9 @@ export default function ScannerScreen() {
     setScanned(false);
     setQrData('');
     setTimeout(() => {
-      inputRef.current?.focus();
+      if (isCameraActive) {
+        inputRef.current?.focus();
+      }
     }, 100);
   };
 
@@ -128,15 +170,19 @@ export default function ScannerScreen() {
 
   const getInitials = (email: string | null) => {
     if (!email) return 'U';
-    const parts = email.split('@')[0].split('.');
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    return email[0].toUpperCase();
+    const [firstPart] = email.split('@');
+    const parts = firstPart.split('.');
+    return parts.length >= 2 
+      ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+      : firstPart[0].toUpperCase();
   };
 
+  const userName = useMemo(
+    () => userEmail?.split('@')[0] || 'Usuario',
+    [userEmail]
+  );
+
   if (!permission) {
-    // Camera permissions are still loading
     return (
       <View style={styles.container}>
         <Text style={styles.loadingText}>Cargando permisos de cámara...</Text>
@@ -145,7 +191,6 @@ export default function ScannerScreen() {
   }
 
   if (!permission.granted) {
-    // Camera permissions are not granted yet
     return (
       <View style={styles.permissionContainer}>
         <View style={styles.permissionContent}>
@@ -169,7 +214,7 @@ export default function ScannerScreen() {
         <View style={styles.headerLeft}>
           <Text style={styles.greeting}>Hola,</Text>
           <Text style={styles.userName} numberOfLines={1}>
-            {userEmail ? userEmail.split('@')[0] : 'Usuario'}
+            {userName}
           </Text>
         </View>
         <View style={styles.headerRight}>
@@ -184,18 +229,27 @@ export default function ScannerScreen() {
         </View>
       </View>
 
-      <CameraView
-        style={styles.camera}
-        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barcodeScannerSettings={{
-          barcodeTypes: ['qr'],
-        }}
-      >
+      {/* Camera Container */}
+      <View style={styles.cameraContainer}>
+        {isCameraActive && (
+          <CameraView
+            style={styles.camera}
+            onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+            barcodeScannerSettings={{
+              barcodeTypes: ['qr'],
+            }}
+          />
+        )}
+        
+        {/* Overlay positioned absolutely over the camera */}
         <View style={styles.overlay}>
           <View style={styles.topSection}>
             <Text style={styles.instructionTitle}>Escanear Brazalete</Text>
             <Text style={styles.instructionText}>
-              Alinee el código QR dentro del área de escaneo
+              {isCameraActive 
+                ? 'Alinee el código QR dentro del área de escaneo'
+                : 'Activando cámara...'
+              }
             </Text>
           </View>
           
@@ -204,12 +258,12 @@ export default function ScannerScreen() {
             <View style={styles.cornerTR} />
             <View style={styles.cornerBL} />
             <View style={styles.cornerBR} />
-            <View style={styles.scanLine} />
+            {isCameraActive && <View style={styles.scanLine} />}
           </View>
           
           <View style={styles.bottomSection} />
         </View>
-      </CameraView>
+      </View>
 
       {/* Hidden input to capture scanner data */}
       <TextInput
@@ -224,13 +278,22 @@ export default function ScannerScreen() {
       <View style={styles.buttonContainer}>
         <Animated.View style={[{ transform: [{ scale: scaleAnim }] }]}>
           <TouchableOpacity
-            style={[styles.verifyButton, qrData ? styles.verifyButtonActive : null]}
+            style={[
+              styles.verifyButton, 
+              qrData ? styles.verifyButtonActive : null,
+              !isCameraActive && styles.verifyButtonDisabled
+            ]}
             onPress={handleVerifyPress}
-            disabled={!qrData}
+            disabled={!qrData || !isCameraActive}
           >
             <QrCode size={24} color="#fff" />
             <Text style={styles.verifyButtonText}>
-              {qrData ? 'Verificar Código' : 'Esperando Código QR'}
+              {!isCameraActive 
+                ? 'Activando Cámara...'
+                : qrData 
+                  ? 'Verificar Código' 
+                  : 'Esperando Código QR'
+              }
             </Text>
           </TouchableOpacity>
         </Animated.View>
@@ -340,11 +403,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  cameraContainer: {
+    flex: 1,
+    position: 'relative',
+  },
   camera: {
     flex: 1,
   },
   overlay: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(2, 16, 36, 0.7)',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -425,6 +496,7 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: '#C1E8FF',
     opacity: 0.8,
+    transform: [{ translateY: -1 }],
   },
   bottomSection: {
     height: 60,
@@ -452,6 +524,9 @@ const styles = StyleSheet.create({
   },
   verifyButtonActive: {
     backgroundColor: '#052859',
+  },
+  verifyButtonDisabled: {
+    backgroundColor: 'rgba(125, 160, 202, 0.5)',
   },
   verifyButtonText: {
     color: '#fff',

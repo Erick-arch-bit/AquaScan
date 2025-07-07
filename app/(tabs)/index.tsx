@@ -1,6 +1,7 @@
 import { CheckerSummary } from '@/components/dashboard/CheckerSummary';
 import { VenueCapacity } from '@/components/dashboard/VenueCapacity';
 import { ApiService } from '@/services/api';
+import { AuthService } from '@/services/auth';
 import { RefreshCw } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -14,6 +15,7 @@ export default function DashboardScreen() {
   const [checkers, setCheckers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
   const loadData = async () => {
     try {
@@ -37,6 +39,13 @@ export default function DashboardScreen() {
   };
 
   useEffect(() => {
+    // Load user data
+    const loadUserData = async () => {
+      const email = await AuthService.getUserEmail();
+      setUserEmail(email);
+    };
+    
+    loadUserData();
     loadData();
 
     // Set up polling for real-time updates
@@ -44,6 +53,11 @@ export default function DashboardScreen() {
 
     return () => clearInterval(intervalId);
   }, []);
+
+  const getUserName = (email: string | null) => {
+    if (!email) return 'Usuario';
+    return email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
 
   return (
     <View style={styles.container}>
@@ -55,7 +69,12 @@ export default function DashboardScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.header}>
-          <Text style={styles.title}>Estado del Venue</Text>
+          <View style={styles.titleSection}>
+            <Text style={styles.venueTitle}>Dios Padre</Text>
+            <Text style={styles.userGreeting}>
+              Hola, {getUserName(userEmail)}
+            </Text>
+          </View>
           <TouchableOpacity onPress={onRefresh} disabled={isLoading} style={styles.refreshButton}>
             <RefreshCw size={20} color="#7DA0CA" />
           </TouchableOpacity>
@@ -89,19 +108,30 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     paddingHorizontal: 24,
     paddingVertical: 20,
   },
-  title: {
+  titleSection: {
+    flex: 1,
+  },
+  venueTitle: {
     fontSize: 28,
     fontWeight: '700',
     color: '#021024',
+    marginBottom: 4,
+  },
+  userGreeting: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#052859',
+    opacity: 0.8,
   },
   refreshButton: {
     padding: 8,
     borderRadius: 12,
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    marginTop: 4,
   },
   sectionTitle: {
     fontSize: 20,

@@ -44,14 +44,6 @@ export default function TabLayout() {
         headerShown: route.name !== 'scanner', // Hide header only for scanner
         headerStyle: styles.header,
         headerTitleStyle: styles.headerTitle,
-        headerLeft: () => (
-          <View style={styles.userContainer}>
-            <Text style={styles.greeting}>Hola,</Text>
-            <Text style={styles.userName} numberOfLines={1}>
-              {userEmail ? userEmail.split('@')[0] : 'Usuario'}
-            </Text>
-          </View>
-        ),
         headerRight: () => (
           <TouchableOpacity onPress={handleProfilePress} style={styles.profileButton}>
             <View style={styles.avatarContainer}>
@@ -117,21 +109,6 @@ const styles = StyleSheet.create({
     color: '#C1E8FF',
     fontSize: 20,
     fontWeight: '600',
-  },
-  userContainer: {
-    marginLeft: 20,
-    justifyContent: 'center',
-  },
-  greeting: {
-    color: '#7DA0CA',
-    fontSize: 14,
-    fontWeight: '400',
-  },
-  userName: {
-    color: '#C1E8FF',
-    fontSize: 18,
-    fontWeight: '600',
-    maxWidth: 200,
   },
   profileButton: {
     marginRight: 20,
