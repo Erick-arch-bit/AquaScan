@@ -1,7 +1,7 @@
 import { AuthService } from '@/services/auth';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, HelpCircle, Info, LogOut, Shield } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
@@ -9,19 +9,15 @@ export default function ProfileScreen() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const loadUserData = async () => {
-      try {
-        const email = await AuthService.getUserEmail();
-        setUserEmail(email);
-      } catch (error) {
-        console.error('Failed to load user data:', error);
-      }
+      const email = await AuthService.getUserEmail();
+      setUserEmail(email);
     };
     loadUserData();
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     Alert.alert(
       'Cerrar Sesión',
       '¿Estás seguro de que quieres cerrar sesión?',
@@ -35,16 +31,11 @@ export default function ProfileScreen() {
           style: 'destructive',
           onPress: async () => {
             setIsLoading(true);
-            try {
-              const result = await AuthService.logout();
-              if (result.success) {
-                router.replace('/(auth)/login');
-              }
-            } catch (error) {
-              console.error('Logout failed:', error);
-            } finally {
-              setIsLoading(false);
+            const result = await AuthService.logout();
+            if (result.success) {
+              router.replace('/(auth)/login');
             }
+            setIsLoading(false);
           },
         },
       ]
@@ -69,49 +60,36 @@ export default function ProfileScreen() {
 
   const getInitials = (email: string | null) => {
     if (!email) return 'U';
-    const [username] = email.split('@');
-    const parts = username.split('.');
-    return parts.length >= 2 
-      ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
-      : username[0].toUpperCase();
+    const parts = email.split('@')[0].split('.');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return email[0].toUpperCase();
   };
 
   const getUserName = (email: string | null) => {
     if (!email) return 'Usuario';
-    return email.split('@')[0]
-      .replace('.', ' ')
-      .replace(/\b\w/g, l => l.toUpperCase());
+    return email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
-
-  const username = getUserName(userEmail);
-  const initials = getInitials(userEmail);
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity 
-          onPress={() => router.back()} 
-          style={styles.backButton}
-          accessibilityLabel="Go back"
-        >
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color="#C1E8FF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Perfil</Text>
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView 
-        style={styles.content} 
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* User Info Section */}
         <View style={styles.userSection}>
           <View style={styles.avatarLarge}>
-            <Text style={styles.avatarLargeText}>{initials}</Text>
+            <Text style={styles.avatarLargeText}>{getInitials(userEmail)}</Text>
           </View>
-          <Text style={styles.userNameLarge}>{username}</Text>
+          <Text style={styles.userNameLarge}>{getUserName(userEmail)}</Text>
           <Text style={styles.userEmail}>{userEmail}</Text>
           <View style={styles.roleBadge}>
             <Shield size={16} color="#C1E8FF" />
@@ -121,11 +99,7 @@ export default function ProfileScreen() {
 
         {/* Menu Cards */}
         <View style={styles.menuSection}>
-          <TouchableOpacity 
-            style={styles.menuCard} 
-            onPress={handleAbout}
-            accessibilityLabel="About the app"
-          >
+          <TouchableOpacity style={styles.menuCard} onPress={handleAbout}>
             <View style={styles.menuIconContainer}>
               <Info size={24} color="#7DA0CA" />
             </View>
@@ -135,11 +109,7 @@ export default function ProfileScreen() {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.menuCard} 
-            onPress={handleContact}
-            accessibilityLabel="Contact support"
-          >
+          <TouchableOpacity style={styles.menuCard} onPress={handleContact}>
             <View style={styles.menuIconContainer}>
               <HelpCircle size={24} color="#7DA0CA" />
             </View>
@@ -153,15 +123,12 @@ export default function ProfileScreen() {
             style={[styles.menuCard, styles.logoutCard]} 
             onPress={handleLogout}
             disabled={isLoading}
-            accessibilityLabel="Log out"
           >
             <View style={[styles.menuIconContainer, styles.logoutIconContainer]}>
               <LogOut size={24} color="#FF6B6B" />
             </View>
             <View style={styles.menuContent}>
-              <Text style={[styles.menuTitle, styles.logoutTitle]}>
-                {isLoading ? 'Cerrando sesión...' : 'Cerrar Sesión'}
-              </Text>
+              <Text style={[styles.menuTitle, styles.logoutTitle]}>Cerrar Sesión</Text>
               <Text style={styles.menuSubtitle}>Salir de la aplicación</Text>
             </View>
           </TouchableOpacity>
@@ -206,9 +173,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f8f9fa',
   },
-  scrollContent: {
-    paddingBottom: 20,
-  },
   userSection: {
     backgroundColor: '#021024',
     alignItems: 'center',
@@ -216,7 +180,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    marginBottom: 20,
   },
   avatarLarge: {
     width: 100,
@@ -262,7 +225,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   menuSection: {
-    paddingHorizontal: 20,
+    padding: 20,
     gap: 16,
   },
   menuCard: {
@@ -314,7 +277,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 30,
     paddingHorizontal: 20,
-    marginTop: 10,
   },
   appInfoText: {
     fontSize: 16,

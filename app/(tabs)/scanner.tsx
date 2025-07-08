@@ -3,17 +3,15 @@ import { AuthService } from '@/services/auth';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { ChartBar as BarChart3, CircleCheck as CheckCircle, QrCode, Circle as XCircle } from 'lucide-react-native';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { SetStateAction, useEffect, useRef, useState } from 'react';
 import { Animated, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-
-type VerificationResult = 'success' | 'error' | null;
 
 export default function ScannerScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [qrData, setQrData] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-  const [verificationResult, setVerificationResult] = useState<VerificationResult>(null);
+  const [verificationResult, setVerificationResult] = useState<'success' | 'error' | null>(null);
   const [verificationMessage, setVerificationMessage] = useState('');
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -25,22 +23,19 @@ export default function ScannerScreen() {
 
   // Handle tab focus/unfocus to manage camera lifecycle
   useFocusEffect(
-    useCallback(() => {
-      let isActive = true;
+    React.useCallback(() => {
+      // Tab is focused - activate camera
+      setIsCameraActive(true);
       
-      const activate = async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        if (isActive) {
-          setIsCameraActive(true);
-          inputRef.current?.focus();
-        }
-      };
-
-      activate();
+      // Focus the hidden input when the tab becomes active
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
 
       return () => {
-        isActive = false;
+        // Tab is unfocused - deactivate camera
         setIsCameraActive(false);
+        // Reset scanner state when leaving
         setScanned(false);
         setQrData('');
         setModalVisible(false);
@@ -59,10 +54,8 @@ export default function ScannerScreen() {
 
   // Animate the scan button
   useEffect(() => {
-    let animation: Animated.CompositeAnimation;
-    
     if (isCameraActive) {
-      animation = Animated.loop(
+      const animation = Animated.loop(
         Animated.sequence([
           Animated.timing(scaleAnim, {
             toValue: 1.05,
@@ -77,11 +70,11 @@ export default function ScannerScreen() {
         ])
       );
       animation.start();
-    }
 
-    return () => {
-      animation?.stop();
-    };
+      return () => {
+        animation.stop();
+      };
+    }
   }, [isCameraActive, scaleAnim]);
 
   // Animation for the verification modal
@@ -97,32 +90,41 @@ export default function ScannerScreen() {
     }
   }, [modalVisible, opacityAnim]);
 
-  const handleBarCodeScanned = async ({ data }: { data: string }) => {
+  const handleBarCodeScanned = async ({ data }) => {
     if (scanned || !isCameraActive) return;
     
     setScanned(true);
     setQrData(data);
+    
+    // Log the raw QR data
+    console.log('📱 QR Escaneado (Raw):', data);
+    
     await verifyQrCode(data);
   };
 
-  const handleManualEntry = (text: string) => {
+  const handleManualEntry = async (text: SetStateAction<string>) => {
     setQrData(text);
+    
+    // Log manual entry
+    if (text) {
+      console.log('⌨️ Entrada Manual (Raw):', text);
+    }
   };
 
   const verifyQrCode = async (data: string) => {
+    console.log('🔄 Iniciando verificación de QR...');
+    
     try {
-      if (!data.trim()) {
-        throw new Error('Código vacío');
-      }
-
       const result = await ApiService.verifyWristband(data);
       
       if (result.valid) {
         setVerificationResult('success');
         setVerificationMessage(result.message || 'Brazalete verificado correctamente.');
+        console.log('✅ Verificación exitosa:', result.message);
       } else {
         setVerificationResult('error');
         setVerificationMessage(result.message || 'Brazalete no válido o ya escaneado.');
+        console.log('❌ Verificación fallida:', result.message);
       }
       
       setModalVisible(true);
@@ -135,11 +137,7 @@ export default function ScannerScreen() {
     } catch (error) {
       console.error('Error verifying QR code:', error);
       setVerificationResult('error');
-      setVerificationMessage(
-        error instanceof Error 
-          ? error.message 
-          : 'Error de conexión. Intente nuevamente.'
-      );
+      setVerificationMessage('Error de conexión. Intente nuevamente.');
       setModalVisible(true);
     }
   };
@@ -170,19 +168,15 @@ export default function ScannerScreen() {
 
   const getInitials = (email: string | null) => {
     if (!email) return 'U';
-    const [firstPart] = email.split('@');
-    const parts = firstPart.split('.');
-    return parts.length >= 2 
-      ? `${parts[0][0]}${parts[1][0]}`.toUpperCase()
-      : firstPart[0].toUpperCase();
+    const parts = email.split('@')[0].split('.');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return email[0].toUpperCase();
   };
 
-  const userName = useMemo(
-    () => userEmail?.split('@')[0] || 'Usuario',
-    [userEmail]
-  );
-
   if (!permission) {
+    // Camera permissions are still loading
     return (
       <View style={styles.container}>
         <Text style={styles.loadingText}>Cargando permisos de cámara...</Text>
@@ -191,6 +185,7 @@ export default function ScannerScreen() {
   }
 
   if (!permission.granted) {
+    // Camera permissions are not granted yet
     return (
       <View style={styles.permissionContainer}>
         <View style={styles.permissionContent}>
@@ -214,7 +209,7 @@ export default function ScannerScreen() {
         <View style={styles.headerLeft}>
           <Text style={styles.greeting}>Hola,</Text>
           <Text style={styles.userName} numberOfLines={1}>
-            {userName}
+            {userEmail ? userEmail.split('@')[0] : 'Usuario'}
           </Text>
         </View>
         <View style={styles.headerRight}>
@@ -496,7 +491,6 @@ const styles = StyleSheet.create({
     height: 2,
     backgroundColor: '#C1E8FF',
     opacity: 0.8,
-    transform: [{ translateY: -1 }],
   },
   bottomSection: {
     height: 60,

@@ -2,7 +2,7 @@ import { AuthService } from '@/services/auth';
 import { useRouter } from 'expo-router';
 import { Lock, Mail } from 'lucide-react-native';
 import { useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -30,7 +30,7 @@ export default function LoginScreen() {
           type: 'success',
           message: result.message
         });
-        // Wait for notification to be visible before redirecting
+        // Esperar a que la notificación sea visible antes de redirigir
         setTimeout(() => {
           router.replace('/(tabs)');
         }, 1000);
@@ -53,17 +53,29 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Fondo con gradiente simulado */}
+      <View style={styles.backgroundGradient} />
+      
+      {/* Contenedor del logo */}
       <View style={styles.logoContainer}>
         <View style={styles.logoCircle}>
-          <Text style={styles.logoText}>QR</Text>
+          <Image 
+            source={{ uri: 'https://images.pexels.com/photos/4386321/pexels-photo-4386321.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop' }}
+            style={styles.logoImage}
+          />
         </View>
-        <Text style={styles.appTitle}>QR Scanner</Text>
-        <Text style={styles.subtitle}>Control de acceso y brazaletes</Text>
+        <Text style={styles.appTitle}>Event Checker</Text>
+        <Text style={styles.subtitle}>Control de acceso profesional</Text>
       </View>
 
+      {/* Contenedor del formulario */}
       <View style={styles.formContainer}>
+        <Text style={styles.formTitle}>Iniciar Sesión</Text>
+        
         <View style={styles.inputContainer}>
-          <Mail size={20} color="#7DA0CA" />
+          <View style={styles.inputIconContainer}>
+            <Mail size={20} color="#FF6B47" />
+          </View>
           <TextInput
             style={styles.input}
             placeholder="Correo electrónico"
@@ -71,19 +83,21 @@ export default function LoginScreen() {
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
-            placeholderTextColor="#7DA0CA"
+            placeholderTextColor="#999"
           />
         </View>
 
         <View style={styles.inputContainer}>
-          <Lock size={20} color="#7DA0CA" />
+          <View style={styles.inputIconContainer}>
+            <Lock size={20} color="#FF6B47" />
+          </View>
           <TextInput
             style={styles.input}
             placeholder="Contraseña"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            placeholderTextColor="#7DA0CA"
+            placeholderTextColor="#999"
           />
         </View>
 
@@ -107,11 +121,21 @@ export default function LoginScreen() {
           disabled={isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator color="#fff" />
+            <ActivityIndicator color="#FFFFFF" size="small" />
           ) : (
             <Text style={styles.loginButtonText}>Iniciar Sesión</Text>
           )}
         </TouchableOpacity>
+
+        <TouchableOpacity style={styles.forgotPasswordButton}>
+          <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Información adicional */}
+      <View style={styles.footerContainer}>
+        <Text style={styles.footerText}>Versión 1.0.0</Text>
+        <Text style={styles.footerSubtext}>© 2024 Event Checker</Text>
       </View>
     </View>
   );
@@ -120,86 +144,104 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#C1E8FF',
-    padding: 24,
-    justifyContent: 'center',
+    backgroundColor: '#F8F9FA',
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '60%',
+    backgroundColor: '#FF6B47',
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 60,
+    marginTop: 80,
+    marginBottom: 40,
   },
   logoCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  logoImage: {
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#021024',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-    shadowColor: '#021024',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  logoText: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#C1E8FF',
   },
   appTitle: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#021024',
+    color: '#FFFFFF',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#052859',
+    color: 'rgba(255, 255, 255, 0.8)',
     fontWeight: '500',
   },
   formContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
-    borderRadius: 24,
-    padding: 32,
-    shadowColor: '#021024',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 8,
+    backgroundColor: '#FFFFFF',
+    marginHorizontal: 20,
+    borderRadius: 25,
+    padding: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 25,
+    elevation: 10,
+  },
+  formTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 30,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(125, 160, 202, 0.3)',
-    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    borderRadius: 15,
     marginBottom: 20,
-    paddingHorizontal: 16,
-    height: 56,
-    backgroundColor: 'rgba(193, 232, 255, 0.1)',
+    backgroundColor: '#F8F9FA',
+  },
+  inputIconContainer: {
+    padding: 15,
   },
   input: {
     flex: 1,
-    marginLeft: 12,
+    paddingVertical: 15,
+    paddingRight: 15,
     fontSize: 16,
-    color: '#021024',
-    fontWeight: '500',
+    color: '#333',
   },
   notification: {
-    padding: 16,
+    padding: 15,
     borderRadius: 12,
     marginBottom: 20,
   },
   successNotification: {
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+    backgroundColor: '#E8F5E8',
     borderWidth: 1,
-    borderColor: 'rgba(76, 175, 80, 0.3)',
+    borderColor: '#4CAF50',
   },
   errorNotification: {
-    backgroundColor: 'rgba(255, 59, 48, 0.1)',
+    backgroundColor: '#FFEBEE',
     borderWidth: 1,
-    borderColor: 'rgba(255, 59, 48, 0.3)',
+    borderColor: '#F44336',
   },
   notificationText: {
     textAlign: 'center',
@@ -210,27 +252,49 @@ const styles = StyleSheet.create({
     color: '#4CAF50',
   },
   errorText: {
-    color: '#FF3B30',
+    color: '#F44336',
   },
   loginButton: {
-    backgroundColor: '#021024',
-    height: 56,
-    borderRadius: 16,
-    justifyContent: 'center',
+    backgroundColor: '#FF6B47',
+    paddingVertical: 18,
+    borderRadius: 15,
     alignItems: 'center',
-    marginTop: 8,
-    shadowColor: '#021024',
+    marginBottom: 20,
+    shadowColor: '#FF6B47',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowRadius: 10,
+    elevation: 5,
   },
   loginButtonDisabled: {
     opacity: 0.7,
   },
   loginButtonText: {
-    color: '#C1E8FF',
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '700',
+  },
+  forgotPasswordButton: {
+    alignItems: 'center',
+  },
+  forgotPasswordText: {
+    color: '#FF6B47',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  footerContainer: {
+    alignItems: 'center',
+    marginTop: 40,
+    paddingBottom: 30,
+  },
+  footerText: {
+    color: '#666',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  footerSubtext: {
+    color: '#999',
+    fontSize: 12,
+    marginTop: 4,
   },
 });

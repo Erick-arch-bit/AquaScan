@@ -1,6 +1,6 @@
 import { AuthService } from '@/services/auth';
 import { Tabs, useRouter } from 'expo-router';
-import { ChartBar as BarChart3, QrCode, Users } from 'lucide-react-native';
+import { BarChart3, QrCode, Users } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -20,7 +20,7 @@ export default function TabLayout() {
     };
 
     checkAuth();
-  }, []);
+  }, [router]);
 
   const handleProfilePress = () => {
     router.push('/(tabs)/profile');
@@ -38,12 +38,13 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={({ route }) => ({
-        tabBarActiveTintColor: '#C1E8FF',
-        tabBarInactiveTintColor: '#7DA0CA',
+        tabBarActiveTintColor: '#FFFFFF',
+        tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.6)',
         tabBarStyle: styles.tabBar,
-        headerShown: route.name !== 'scanner', // Hide header only for scanner
+        headerShown: route.name !== 'scanner', // Ocultar encabezado solo para scanner
         headerStyle: styles.header,
         headerTitleStyle: styles.headerTitle,
+        headerTintColor: '#FFFFFF',
         headerRight: () => (
           <TouchableOpacity onPress={handleProfilePress} style={styles.profileButton}>
             <View style={styles.avatarContainer}>
@@ -80,7 +81,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          href: null, // Hide from tab bar
+          href: null, // Ocultar de la barra de pestañas
         }}
       />
     </Tabs>
@@ -89,26 +90,30 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#021024',
+    backgroundColor: '#FF6B47',
     borderTopColor: 'transparent',
-    height: 80,
-    paddingBottom: 20,
-    paddingTop: 12,
+    height: 85,
+    paddingBottom: 25,
+    paddingTop: 15,
     elevation: 0,
     shadowOpacity: 0,
     borderTopWidth: 0,
+    borderRadius: 25,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    position: 'absolute',
   },
   header: {
-    backgroundColor: '#021024',
+    backgroundColor: '#FF6B47',
     shadowColor: 'transparent',
     elevation: 0,
     height: 100,
     borderBottomWidth: 0,
   },
   headerTitle: {
-    color: '#C1E8FF',
+    color: '#FFFFFF',
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   profileButton: {
     marginRight: 20,
@@ -118,15 +123,15 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#052859',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderColor: '#7DA0CA',
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
   avatarText: {
-    color: '#C1E8FF',
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: '700',
   },
 });

@@ -1,45 +1,18 @@
 import { WristbandItem } from '@/components/wristbands/WristbandItem';
 import { ApiService } from '@/services/api';
 import { Search } from 'lucide-react-native';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
-interface Wristband {
-  id: string;
-  name: string;
-  status: 'verified' | 'pending';
-}
-
 export default function WristbandsScreen() {
-  const [wristbands, setWristbands] = useState<Wristband[]>([]);
-  const [filteredWristbands, setFilteredWristbands] = useState<Wristband[]>([]);
+  const [wristbands, setWristbands] = useState([]);
+  const [filteredWristbands, setFilteredWristbands] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filterStatus, setFilterStatus] = useState<'all' | 'verified' | 'pending'>('all');
+  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'verified', 'pending'
 
-  const applyFilters = useCallback((
-    data: Wristband[],
-    query: string,
-    status: 'all' | 'verified' | 'pending'
-  ) => {
-    let filtered = data;
-    
-    if (query) {
-      filtered = filtered.filter(item => 
-        item.id.toLowerCase().includes(query.toLowerCase()) || 
-        item.name.toLowerCase().includes(query.toLowerCase())
-      );
-    }
-    
-    if (status !== 'all') {
-      filtered = filtered.filter(item => item.status === status);
-    }
-    
-    setFilteredWristbands(filtered);
-  }, []);
-
-  const loadWristbands = useCallback(async () => {
+  const loadWristbands = async () => {
     try {
       setIsLoading(true);
       const data = await ApiService.getWristbands();
@@ -51,26 +24,45 @@ export default function WristbandsScreen() {
       setIsLoading(false);
       setRefreshing(false);
     }
-  }, [searchQuery, filterStatus, applyFilters]);
+  };
 
-  const onRefresh = useCallback(() => {
+  const onRefresh = () => {
     setRefreshing(true);
     loadWristbands();
-  }, [loadWristbands]);
+  };
 
-  const handleSearch = useCallback((text: string) => {
+  const applyFilters = (data, query, status) => {
+    let filtered = data;
+    
+    // Apply search filter
+    if (query) {
+      filtered = filtered.filter(item => 
+        item.id.toLowerCase().includes(query.toLowerCase()) || 
+        item.name.toLowerCase().includes(query.toLowerCase())
+      );
+    }
+    
+    // Apply status filter
+    if (status !== 'all') {
+      filtered = filtered.filter(item => item.status === status);
+    }
+    
+    setFilteredWristbands(filtered);
+  };
+
+  const handleSearch = (text) => {
     setSearchQuery(text);
     applyFilters(wristbands, text, filterStatus);
-  }, [wristbands, filterStatus, applyFilters]);
+  };
 
-  const handleFilterChange = useCallback((status: 'all' | 'verified' | 'pending') => {
+  const handleFilterChange = (status) => {
     setFilterStatus(status);
     applyFilters(wristbands, searchQuery, status);
-  }, [wristbands, searchQuery, applyFilters]);
+  };
 
   useEffect(() => {
     loadWristbands();
-  }, [loadWristbands]);
+  }, []);
 
   return (
     <View style={styles.container}>

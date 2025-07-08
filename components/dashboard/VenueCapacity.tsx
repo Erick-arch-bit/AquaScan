@@ -1,4 +1,4 @@
-import { Circle } from 'lucide-react-native';
+import { AlertCircle, AlertTriangle, TrendingUp } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
 
 type VenueCapacityProps = {
@@ -11,8 +11,8 @@ type VenueCapacityProps = {
 export function VenueCapacity({ current, max, percentage, isLoading }: VenueCapacityProps) {
   const getStatusColor = () => {
     if (percentage < 70) return '#4CAF50';
-    if (percentage < 90) return '#FFA726';
-    return '#EF5350';
+    if (percentage < 90) return '#FF9800';
+    return '#F44336';
   };
 
   const getStatusText = () => {
@@ -21,11 +21,17 @@ export function VenueCapacity({ current, max, percentage, isLoading }: VenueCapa
     return 'Aforo Crítico';
   };
 
+  const getStatusIcon = () => {
+    if (percentage < 70) return <TrendingUp size={16} color={getStatusColor()} />;
+    if (percentage < 90) return <AlertTriangle size={16} color={getStatusColor()} />;
+    return <AlertCircle size={16} color={getStatusColor()} />;
+  };
+
   if (isLoading) {
     return (
       <View style={styles.container}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Cargando datos...</Text>
+          <Text style={styles.loadingText}>Cargando datos de capacidad...</Text>
         </View>
       </View>
     );
@@ -37,25 +43,25 @@ export function VenueCapacity({ current, max, percentage, isLoading }: VenueCapa
         <View style={styles.headerSection}>
           <Text style={styles.capacityTitle}>Capacidad Actual</Text>
           <View style={styles.statusContainer}>
-            <Circle size={12} color={getStatusColor()} fill={getStatusColor()} />
+            {getStatusIcon()}
             <Text style={[styles.statusText, { color: getStatusColor() }]}>
               {getStatusText()}
             </Text>
           </View>
         </View>
 
-        <View style={styles.gaugeContainer}>
-          <View style={styles.gaugeBackground} />
-          <View 
-            style={[
-              styles.gaugeFill, 
-              { 
-                width: `${percentage}%`,
-                backgroundColor: getStatusColor() 
-              }
-            ]} 
-          />
-          <Text style={styles.percentageText}>{percentage}%</Text>
+        {/* Medidor circular */}
+        <View style={styles.circularGaugeContainer}>
+          <View style={styles.circularGauge}>
+            <View style={[styles.circularProgress, { 
+              borderColor: getStatusColor(),
+              transform: [{ rotate: `${(percentage / 100) * 360}deg` }]
+            }]} />
+            <View style={styles.circularInner}>
+              <Text style={styles.percentageText}>{percentage}%</Text>
+              <Text style={styles.percentageLabel}>Ocupación</Text>
+            </View>
+          </View>
         </View>
         
         <View style={styles.statsContainer}>
@@ -68,6 +74,11 @@ export function VenueCapacity({ current, max, percentage, isLoading }: VenueCapa
             <Text style={styles.statValue}>{max}</Text>
             <Text style={styles.statLabel}>Capacidad</Text>
           </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statValue}>{max - current}</Text>
+            <Text style={styles.statLabel}>Disponible</Text>
+          </View>
         </View>
       </View>
     </View>
@@ -76,14 +87,14 @@ export function VenueCapacity({ current, max, percentage, isLoading }: VenueCapa
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 24,
-    marginTop: 8,
+    marginHorizontal: 20,
+    marginBottom: 8,
   },
   capacityContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 24,
-    shadowColor: '#021024',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
@@ -93,54 +104,64 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 24,
   },
   capacityTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#021024',
+    color: '#333',
   },
   statusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(193, 232, 255, 0.3)',
+    backgroundColor: '#F8F9FA',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
+    gap: 6,
   },
   statusText: {
-    marginLeft: 8,
     fontSize: 14,
     fontWeight: '600',
   },
-  gaugeContainer: {
-    width: '100%',
-    height: 40,
-    backgroundColor: 'rgba(193, 232, 255, 0.3)',
-    borderRadius: 20,
-    marginVertical: 20,
-    position: 'relative',
-    overflow: 'hidden',
+  circularGaugeContainer: {
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  circularGauge: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    borderWidth: 8,
+    borderColor: '#F0F0F0',
     justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
   },
-  gaugeBackground: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(193, 232, 255, 0.3)',
-  },
-  gaugeFill: {
+  circularProgress: {
     position: 'absolute',
-    height: '100%',
-    left: 0,
-    top: 0,
-    borderRadius: 20,
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    borderWidth: 8,
+    borderTopColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: 'transparent',
+    borderLeftColor: '#4CAF50',
+  },
+  circularInner: {
+    alignItems: 'center',
   },
   percentageText: {
-    position: 'absolute',
-    width: '100%',
-    textAlign: 'center',
-    fontSize: 18,
+    fontSize: 32,
     fontWeight: '700',
-    color: '#021024',
+    color: '#333',
+    marginBottom: 4,
+  },
+  percentageLabel: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
   },
   statsContainer: {
     flexDirection: 'row',
@@ -150,36 +171,37 @@ const styles = StyleSheet.create({
   },
   statItem: {
     alignItems: 'center',
+    flex: 1,
   },
   statValue: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: '700',
-    color: '#021024',
+    color: '#333',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 14,
-    color: '#7DA0CA',
+    color: '#666',
     fontWeight: '500',
   },
   statDivider: {
     width: 1,
     height: 40,
-    backgroundColor: 'rgba(125, 160, 202, 0.3)',
+    backgroundColor: '#E0E0E0',
   },
   loadingContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 32,
     alignItems: 'center',
-    shadowColor: '#021024',
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 6,
   },
   loadingText: {
-    color: '#7DA0CA',
+    color: '#666',
     fontSize: 16,
     fontWeight: '500',
   },
