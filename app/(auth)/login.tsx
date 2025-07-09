@@ -30,10 +30,9 @@ export default function LoginScreen() {
           type: 'success',
           message: result.message
         });
-        // Esperar a que la notificación sea visible antes de redirigir
         setTimeout(() => {
           router.replace('/(tabs)');
-        }, 1000);
+        }, 3000);
       } else {
         setNotification({
           type: 'error',
@@ -74,7 +73,7 @@ export default function LoginScreen() {
         
         <View style={styles.inputContainer}>
           <View style={styles.inputIconContainer}>
-            <Mail size={20} color="#FF6B47" />
+            <Mail size={20} color="#052859" />
           </View>
           <TextInput
             style={styles.input}
@@ -83,13 +82,13 @@ export default function LoginScreen() {
             onChangeText={setEmail}
             autoCapitalize="none"
             keyboardType="email-address"
-            placeholderTextColor="#999"
+            placeholderTextColor="#7DA0CA"
           />
         </View>
 
         <View style={styles.inputContainer}>
           <View style={styles.inputIconContainer}>
-            <Lock size={20} color="#FF6B47" />
+            <Lock size={20} color="#052859" />
           </View>
           <TextInput
             style={styles.input}
@@ -97,7 +96,7 @@ export default function LoginScreen() {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            placeholderTextColor="#999"
+            placeholderTextColor="#7DA0CA"
           />
         </View>
 
@@ -127,9 +126,6 @@ export default function LoginScreen() {
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.forgotPasswordButton}>
-          <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
-        </TouchableOpacity>
       </View>
 
       {/* Información adicional */}
@@ -144,7 +140,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#C1E8FF',
   },
   backgroundGradient: {
     position: 'absolute',
@@ -152,7 +148,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: '60%',
-    backgroundColor: '#FF6B47',
+    backgroundColor: '#052859',
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
   },
@@ -169,7 +165,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: '#021024',
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
     shadowRadius: 20,
@@ -196,7 +192,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 25,
     padding: 30,
-    shadowColor: '#000',
+    shadowColor: '#021024',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.1,
     shadowRadius: 25,
@@ -205,7 +201,7 @@ const styles = StyleSheet.create({
   formTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#333',
+    color: '#021024',
     textAlign: 'center',
     marginBottom: 30,
   },
@@ -216,7 +212,7 @@ const styles = StyleSheet.create({
     borderColor: '#E5E5E5',
     borderRadius: 15,
     marginBottom: 20,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F0F8FF',
   },
   inputIconContainer: {
     padding: 15,
@@ -226,7 +222,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingRight: 15,
     fontSize: 16,
-    color: '#333',
+    color: '#021024',
   },
   notification: {
     padding: 15,
@@ -255,12 +251,12 @@ const styles = StyleSheet.create({
     color: '#F44336',
   },
   loginButton: {
-    backgroundColor: '#FF6B47',
+    backgroundColor: '#052859',
     paddingVertical: 18,
     borderRadius: 15,
     alignItems: 'center',
     marginBottom: 20,
-    shadowColor: '#FF6B47',
+    shadowColor: '#052859',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 10,
@@ -278,7 +274,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   forgotPasswordText: {
-    color: '#FF6B47',
+    color: '#052859',
     fontSize: 14,
     fontWeight: '500',
   },
@@ -288,12 +284,12 @@ const styles = StyleSheet.create({
     paddingBottom: 30,
   },
   footerText: {
-    color: '#666',
+    color: '#7DA0CA',
     fontSize: 14,
     fontWeight: '500',
   },
   footerSubtext: {
-    color: '#999',
+    color: '#7DA0CA',
     fontSize: 12,
     marginTop: 4,
   },

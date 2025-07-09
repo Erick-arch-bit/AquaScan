@@ -1,18 +1,44 @@
 import { WristbandItem } from '@/components/wristbands/WristbandItem';
 import { ApiService } from '@/services/api';
 import { Search } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FlatList, RefreshControl, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
+type WristbandStatus = 'all' | 'verified' | 'pending';
+interface Wristband {
+  id: string;
+  name: string;
+  status: 'verified' | 'pending';
+  // Agrega otras propiedades según sea necesario
+}
+
 export default function WristbandsScreen() {
-  const [wristbands, setWristbands] = useState([]);
-  const [filteredWristbands, setFilteredWristbands] = useState([]);
+  const [wristbands, setWristbands] = useState<Wristband[]>([]);
+  const [filteredWristbands, setFilteredWristbands] = useState<Wristband[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'verified', 'pending'
+  const [filterStatus, setFilterStatus] = useState<WristbandStatus>('all');
 
-  const loadWristbands = async () => {
+  const applyFilters = useCallback((data: Wristband[], query: string, status: WristbandStatus) => {
+    let filtered = [...data];
+    
+    if (query) {
+      const lowerCaseQuery = query.toLowerCase();
+      filtered = filtered.filter(item => 
+        item.id.toLowerCase().includes(lowerCaseQuery) || 
+        (item.name && item.name.toLowerCase().includes(lowerCaseQuery))
+      );
+    }
+    
+    if (status !== 'all') {
+      filtered = filtered.filter(item => item.status === status);
+    }
+    
+    setFilteredWristbands(filtered);
+  }, []);
+
+  const loadWristbands = useCallback(async () => {
     try {
       setIsLoading(true);
       const data = await ApiService.getWristbands();
@@ -20,52 +46,36 @@ export default function WristbandsScreen() {
       applyFilters(data, searchQuery, filterStatus);
     } catch (error) {
       console.error('Error loading wristbands:', error);
+      setWristbands([]);
+      setFilteredWristbands([]);
     } finally {
       setIsLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [searchQuery, filterStatus, applyFilters]);
 
-  const onRefresh = () => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     loadWristbands();
-  };
+  }, [loadWristbands]);
 
-  const applyFilters = (data, query, status) => {
-    let filtered = data;
-    
-    // Apply search filter
-    if (query) {
-      filtered = filtered.filter(item => 
-        item.id.toLowerCase().includes(query.toLowerCase()) || 
-        item.name.toLowerCase().includes(query.toLowerCase())
-      );
-    }
-    
-    // Apply status filter
-    if (status !== 'all') {
-      filtered = filtered.filter(item => item.status === status);
-    }
-    
-    setFilteredWristbands(filtered);
-  };
-
-  const handleSearch = (text) => {
+  const handleSearch = useCallback((text: string) => {
     setSearchQuery(text);
     applyFilters(wristbands, text, filterStatus);
-  };
+  }, [wristbands, filterStatus, applyFilters]);
 
-  const handleFilterChange = (status) => {
+  const handleFilterChange = useCallback((status: WristbandStatus) => {
     setFilterStatus(status);
     applyFilters(wristbands, searchQuery, status);
-  };
+  }, [wristbands, searchQuery, applyFilters]);
 
   useEffect(() => {
     loadWristbands();
-  }, []);
+  }, [loadWristbands]);
 
   return (
     <View style={styles.container}>
+      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <View style={styles.searchInputContainer}>
           <Search size={20} color="#7DA0CA" style={styles.searchIcon} />
@@ -75,47 +85,53 @@ export default function WristbandsScreen() {
             placeholderTextColor="#7DA0CA"
             value={searchQuery}
             onChangeText={handleSearch}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
           />
         </View>
       </View>
 
+      {/* Filter Buttons */}
       <View style={styles.filterContainer}>
         <Text style={styles.filterLabel}>Filtrar por:</Text>
         <View style={styles.filterButtons}>
-          <TouchableOpacity
-            style={[styles.filterButton, filterStatus === 'all' && styles.filterButtonActive]}
-            onPress={() => handleFilterChange('all')}
-          >
-            <Text style={[styles.filterButtonText, filterStatus === 'all' && styles.filterButtonTextActive]}>
-              Todos
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterButton, filterStatus === 'verified' && styles.filterButtonActive]}
-            onPress={() => handleFilterChange('verified')}
-          >
-            <Text style={[styles.filterButtonText, filterStatus === 'verified' && styles.filterButtonTextActive]}>
-              Verificados
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.filterButton, filterStatus === 'pending' && styles.filterButtonActive]}
-            onPress={() => handleFilterChange('pending')}
-          >
-            <Text style={[styles.filterButtonText, filterStatus === 'pending' && styles.filterButtonTextActive]}>
-              Pendientes
-            </Text>
-          </TouchableOpacity>
+          {(['all', 'verified', 'pending'] as WristbandStatus[]).map((status) => (
+            <TouchableOpacity
+              key={status}
+              style={[
+                styles.filterButton, 
+                filterStatus === status && styles.filterButtonActive
+              ]}
+              onPress={() => handleFilterChange(status)}
+              activeOpacity={0.7}
+            >
+              <Text style={[
+                styles.filterButtonText,
+                filterStatus === status && styles.filterButtonTextActive
+              ]}>
+                {status === 'all' ? 'Todos' : status === 'verified' ? 'Verificados' : 'Pendientes'}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
 
+      {/* Wristbands List */}
       <FlatList
         data={filteredWristbands}
         renderItem={({ item }) => <WristbandItem wristband={item} />}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[
+          styles.listContent,
+          filteredWristbands.length === 0 && styles.emptyListContent
+        ]}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            colors={['#052859']}
+            tintColor="#052859"
+          />
         }
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={
@@ -125,6 +141,9 @@ export default function WristbandsScreen() {
             </Text>
           </View>
         }
+        initialNumToRender={10}
+        maxToRenderPerBatch={5}
+        windowSize={5}
       />
     </View>
   );
@@ -137,6 +156,7 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     padding: 24,
+    paddingBottom: 16,
     backgroundColor: '#C1E8FF',
   },
   searchInputContainer: {
@@ -193,7 +213,12 @@ const styles = StyleSheet.create({
     color: '#C1E8FF',
   },
   listContent: {
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+  },
+  emptyListContent: {
+    flex: 1,
+    justifyContent: 'center',
   },
   emptyContainer: {
     padding: 40,

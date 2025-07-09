@@ -6,15 +6,34 @@ import { Clock, RefreshCw, TrendingUp, Users } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
+type CapacityStatus = 'normal' | 'warning' | 'critical';
+
+interface CapacityData {
+  current: number;
+  max: number;
+  percentage: number;
+  status: CapacityStatus;
+  lastUpdated: string;
+}
+
+interface Checker {
+  id: string;
+  name: string;
+  scanned: number;
+  verified: number;
+  rejected: number;
+  lastActivity: string;
+}
+
 export default function DashboardScreen() {
-  const [capacity, setCapacity] = useState({
+  const [capacity, setCapacity] = useState<CapacityData>({
     current: 0,
     max: 0,
     percentage: 0,
-    status: 'normal' as const,
+    status: 'normal',
     lastUpdated: ''
   });
-  const [checkers, setCheckers] = useState([]);
+  const [checkers, setCheckers] = useState<Checker[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -28,8 +47,14 @@ export default function DashboardScreen() {
         ApiService.getCheckersSummary()
       ]);
       
-      setCapacity(capacityData);
-      setCheckers(checkersData);
+      setCapacity(capacityData || {
+        current: 0,
+        max: 0,
+        percentage: 0,
+        status: 'normal',
+        lastUpdated: ''
+      });
+      setCheckers(checkersData || []);
       setLastUpdate(new Date().toLocaleTimeString());
     } catch (error) {
       console.error('Error cargando datos del dashboard:', error);
@@ -45,36 +70,40 @@ export default function DashboardScreen() {
   };
 
   useEffect(() => {
-    // Cargar datos del usuario
     const loadUserData = async () => {
-      const email = await AuthService.getUserEmail();
-      setUserEmail(email);
+      try {
+        const email = await AuthService.getUserEmail();
+        setUserEmail(email);
+      } catch (error) {
+        console.error('Error cargando datos de usuario:', error);
+      }
     };
     
     loadUserData();
     loadData();
 
-    // Configurar polling para actualizaciones en tiempo real
-    const intervalId = setInterval(loadData, 30000); // Actualizar cada 30 segundos
+    const intervalId = setInterval(loadData, 30000);
 
     return () => clearInterval(intervalId);
   }, []);
 
   const getUserName = (email: string | null) => {
     if (!email) return 'Usuario';
-    return email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    return email.split('@')[0]
+      .replace('.', ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
   };
 
-  const getStatusColor = () => {
+  const getStatusColor = (): string => {
     switch (capacity.status) {
       case 'normal': return '#4CAF50';
-      case 'warning': return '#FF9800';
-      case 'critical': return '#F44336';
+      case 'warning': return '#FFA726';
+      case 'critical': return '#FF3B30';
       default: return '#4CAF50';
     }
   };
 
-  const getStatusText = () => {
+  const getStatusText = (): string => {
     switch (capacity.status) {
       case 'normal': return 'Normal';
       case 'warning': return 'Atención';
@@ -83,18 +112,19 @@ export default function DashboardScreen() {
     }
   };
 
-  const totalScanned = checkers.reduce((sum: number, checker: any) => sum + checker.scanned, 0);
-  const totalVerified = checkers.reduce((sum: number, checker: any) => sum + checker.verified, 0);
-  const averageEfficiency = checkers.length > 0 
-    ? checkers.reduce((sum: number, checker: any) => sum + checker.efficiency, 0) / checkers.length 
-    : 0;
+  const totalScanned = checkers.reduce((sum, checker) => sum + (checker.scanned || 0), 0);
+  const totalVerified = checkers.reduce((sum, checker) => sum + (checker.verified || 0), 0);
 
   return (
     <View style={styles.container}>
       <ScrollView 
         style={styles.scrollView}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh} 
+            tintColor="#052859"
+          />
         }
         showsVerticalScrollIndicator={false}
       >
@@ -107,15 +137,23 @@ export default function DashboardScreen() {
             </Text>
             {lastUpdate && (
               <View style={styles.lastUpdateContainer}>
-                <Clock size={12} color="#666" />
+                <Clock size={12} color="#7DA0CA" />
                 <Text style={styles.lastUpdateText}>
                   Última actualización: {lastUpdate}
                 </Text>
               </View>
             )}
           </View>
-          <TouchableOpacity onPress={onRefresh} disabled={isLoading} style={styles.refreshButton}>
-            <RefreshCw size={20} color="#FF6B47" />
+          <TouchableOpacity 
+            onPress={onRefresh} 
+            disabled={isLoading || refreshing} 
+            style={styles.refreshButton}
+          >
+            <RefreshCw 
+              size={20} 
+              color="#052859" 
+              style={isLoading || refreshing ? styles.refreshingIcon : undefined} 
+            />
           </TouchableOpacity>
         </View>
 
@@ -123,7 +161,7 @@ export default function DashboardScreen() {
         <View style={styles.statsContainer}>
           <View style={styles.statCard}>
             <View style={styles.statIconContainer}>
-              <Users size={24} color="#FF6B47" />
+              <Users size={24} color="#052859" />
             </View>
             <Text style={styles.statValue}>{totalScanned}</Text>
             <Text style={styles.statLabel}>Total Escaneados</Text>
@@ -139,10 +177,10 @@ export default function DashboardScreen() {
           
           <View style={styles.statCard}>
             <View style={styles.statIconContainer}>
-              <RefreshCw size={24} color="#2196F3" />
+              <RefreshCw size={24} color="#7DA0CA" />
             </View>
-            <Text style={styles.statValue}>{averageEfficiency.toFixed(1)}%</Text>
-            <Text style={styles.statLabel}>Eficiencia Promedio</Text>
+            <Text style={styles.statValue}>{checkers.length}</Text>
+            <Text style={styles.statLabel}>Verificadores</Text>
           </View>
         </View>
 
@@ -176,7 +214,7 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#C1E8FF',
   },
   scrollView: {
     flex: 1,
@@ -191,7 +229,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
     marginBottom: 20,
-    shadowColor: '#000',
+    shadowColor: '#021024',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -203,13 +241,13 @@ const styles = StyleSheet.create({
   venueTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#333',
+    color: '#021024',
     marginBottom: 4,
   },
   userGreeting: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#666',
+    color: '#7DA0CA',
     marginBottom: 8,
   },
   lastUpdateContainer: {
@@ -219,13 +257,16 @@ const styles = StyleSheet.create({
   },
   lastUpdateText: {
     fontSize: 12,
-    color: '#666',
+    color: '#7DA0CA',
   },
   refreshButton: {
     padding: 12,
     borderRadius: 12,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F0F8FF',
     marginTop: 4,
+  },
+  refreshingIcon: {
+    opacity: 0.5,
   },
   statsContainer: {
     flexDirection: 'row',
@@ -239,7 +280,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 16,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#021024',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -249,7 +290,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F0F8FF',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 12,
@@ -257,12 +298,12 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#333',
+    color: '#021024',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 12,
-    color: '#666',
+    color: '#7DA0CA',
     textAlign: 'center',
     fontWeight: '500',
   },
@@ -274,11 +315,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 8,
   },
   statusTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: '#021024',
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -293,7 +335,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#333',
+    color: '#021024',
     marginTop: 32,
     marginBottom: 16,
     paddingHorizontal: 20,

@@ -1,7 +1,7 @@
 import { AuthService } from '@/services/auth';
 import { useRouter } from 'expo-router';
 import { ArrowLeft, HelpCircle, Info, LogOut, Shield } from 'lucide-react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
@@ -9,10 +9,14 @@ export default function ProfileScreen() {
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadUserData = async () => {
-      const email = await AuthService.getUserEmail();
-      setUserEmail(email);
+      try {
+        const email = await AuthService.getUserEmail();
+        setUserEmail(email);
+      } catch (error) {
+        console.error('Error loading user data:', error);
+      }
     };
     loadUserData();
   }, []);
@@ -31,11 +35,16 @@ export default function ProfileScreen() {
           style: 'destructive',
           onPress: async () => {
             setIsLoading(true);
-            const result = await AuthService.logout();
-            if (result.success) {
-              router.replace('/(auth)/login');
+            try {
+              const result = await AuthService.logout();
+              if (result.success) {
+                router.replace('/(auth)/login');
+              }
+            } catch (error) {
+              console.error('Logout error:', error);
+            } finally {
+              setIsLoading(false);
             }
-            setIsLoading(false);
           },
         },
       ]
@@ -60,37 +69,59 @@ export default function ProfileScreen() {
 
   const getInitials = (email: string | null) => {
     if (!email) return 'U';
-    const parts = email.split('@')[0].split('.');
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
+    try {
+      const parts = email.split('@')[0].split('.');
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return email[0].toUpperCase();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return 'U';
     }
-    return email[0].toUpperCase();
   };
 
   const getUserName = (email: string | null) => {
     if (!email) return 'Usuario';
-    return email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    try {
+      return email.split('@')[0]
+        .replace('.', ' ')
+        .replace(/\b\w/g, l => l.toUpperCase());
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      return 'Usuario';
+    }
   };
 
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity 
+          onPress={() => router.back()} 
+          style={styles.backButton}
+          disabled={isLoading}
+        >
           <ArrowLeft size={24} color="#C1E8FF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Perfil</Text>
         <View style={styles.placeholder} />
       </View>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* User Info Section */}
         <View style={styles.userSection}>
           <View style={styles.avatarLarge}>
             <Text style={styles.avatarLargeText}>{getInitials(userEmail)}</Text>
           </View>
           <Text style={styles.userNameLarge}>{getUserName(userEmail)}</Text>
-          <Text style={styles.userEmail}>{userEmail}</Text>
+          <Text style={styles.userEmail} numberOfLines={1} ellipsizeMode="tail">
+            {userEmail}
+          </Text>
           <View style={styles.roleBadge}>
             <Shield size={16} color="#C1E8FF" />
             <Text style={styles.roleText}>Verificador</Text>
@@ -99,7 +130,11 @@ export default function ProfileScreen() {
 
         {/* Menu Cards */}
         <View style={styles.menuSection}>
-          <TouchableOpacity style={styles.menuCard} onPress={handleAbout}>
+          <TouchableOpacity 
+            style={styles.menuCard} 
+            onPress={handleAbout}
+            disabled={isLoading}
+          >
             <View style={styles.menuIconContainer}>
               <Info size={24} color="#7DA0CA" />
             </View>
@@ -109,7 +144,11 @@ export default function ProfileScreen() {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuCard} onPress={handleContact}>
+          <TouchableOpacity 
+            style={styles.menuCard} 
+            onPress={handleContact}
+            disabled={isLoading}
+          >
             <View style={styles.menuIconContainer}>
               <HelpCircle size={24} color="#7DA0CA" />
             </View>
@@ -128,7 +167,9 @@ export default function ProfileScreen() {
               <LogOut size={24} color="#FF6B6B" />
             </View>
             <View style={styles.menuContent}>
-              <Text style={[styles.menuTitle, styles.logoutTitle]}>Cerrar Sesión</Text>
+              <Text style={[styles.menuTitle, styles.logoutTitle]}>
+                {isLoading ? 'Cerrando...' : 'Cerrar Sesión'}
+              </Text>
               <Text style={styles.menuSubtitle}>Salir de la aplicación</Text>
             </View>
           </TouchableOpacity>
@@ -171,7 +212,10 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#C1E8FF',
+  },
+  scrollContent: {
+    paddingBottom: 40,
   },
   userSection: {
     backgroundColor: '#021024',
@@ -202,11 +246,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#C1E8FF',
     marginBottom: 8,
+    textAlign: 'center',
+    maxWidth: '90%',
   },
   userEmail: {
     fontSize: 16,
     color: '#7DA0CA',
     marginBottom: 16,
+    maxWidth: '90%',
+    textAlign: 'center',
   },
   roleBadge: {
     flexDirection: 'row',
@@ -234,7 +282,7 @@ const styles = StyleSheet.create({
     padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#021024',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -277,6 +325,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 30,
     paddingHorizontal: 20,
+    marginTop: 20,
   },
   appInfoText: {
     fontSize: 16,

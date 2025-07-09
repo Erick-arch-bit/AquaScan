@@ -2,16 +2,23 @@ import { ApiService } from '@/services/api';
 import { AuthService } from '@/services/auth';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { ChartBar as BarChart3, CircleCheck as CheckCircle, QrCode, Circle as XCircle } from 'lucide-react-native';
-import React, { SetStateAction, useEffect, useRef, useState } from 'react';
+import { BarChart3, CheckCircle, QrCode, XCircle } from 'lucide-react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+type VerificationResult = 'success' | 'error' | null;
+
+interface WristbandVerificationResult {
+  valid: boolean;
+  message?: string;
+}
 
 export default function ScannerScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [qrData, setQrData] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
-  const [verificationResult, setVerificationResult] = useState<'success' | 'error' | null>(null);
+  const [verificationResult, setVerificationResult] = useState<VerificationResult>(null);
   const [verificationMessage, setVerificationMessage] = useState('');
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -21,41 +28,45 @@ export default function ScannerScreen() {
   
   const router = useRouter();
 
-  // Handle tab focus/unfocus to manage camera lifecycle
+  // Efecto para manejar el foco de la pantalla
   useFocusEffect(
-    React.useCallback(() => {
-      // Tab is focused - activate camera
+    useCallback(() => {
       setIsCameraActive(true);
       
-      // Focus the hidden input when the tab becomes active
-      setTimeout(() => {
+      const focusTimeout = setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
 
       return () => {
-        // Tab is unfocused - deactivate camera
         setIsCameraActive(false);
-        // Reset scanner state when leaving
         setScanned(false);
         setQrData('');
         setModalVisible(false);
+        clearTimeout(focusTimeout);
       };
     }, [])
   );
 
+  // Cargar datos del usuario
   useEffect(() => {
-    // Load user data
     const loadUserData = async () => {
-      const email = await AuthService.getUserEmail();
-      setUserEmail(email);
+      try {
+        const email = await AuthService.getUserEmail();
+        setUserEmail(email);
+      } catch (error) {
+        console.error('Error loading user data:', error);
+        setUserEmail(null);
+      }
     };
     loadUserData();
   }, []);
 
-  // Animate the scan button
+  // Animación del botón de verificación
   useEffect(() => {
+    let animation: Animated.CompositeAnimation | null = null;
+    
     if (isCameraActive) {
-      const animation = Animated.loop(
+      animation = Animated.loop(
         Animated.sequence([
           Animated.timing(scaleAnim, {
             toValue: 1.05,
@@ -70,14 +81,15 @@ export default function ScannerScreen() {
         ])
       );
       animation.start();
-
-      return () => {
-        animation.stop();
-      };
     }
+
+    return () => {
+      animation?.stop();
+      scaleAnim.setValue(1); // Reset animation value
+    };
   }, [isCameraActive, scaleAnim]);
 
-  // Animation for the verification modal
+  // Animación del modal
   useEffect(() => {
     if (modalVisible) {
       Animated.timing(opacityAnim, {
@@ -85,98 +97,91 @@ export default function ScannerScreen() {
         duration: 300,
         useNativeDriver: true,
       }).start();
-    } else {
-      opacityAnim.setValue(0);
     }
   }, [modalVisible, opacityAnim]);
 
-  const handleBarCodeScanned = async ({ data }) => {
-    if (scanned || !isCameraActive) return;
-    
-    setScanned(true);
-    setQrData(data);
-    
-    // Log the raw QR data
-    console.log('📱 QR Escaneado (Raw):', data);
-    
-    await verifyQrCode(data);
-  };
-
-  const handleManualEntry = async (text: SetStateAction<string>) => {
-    setQrData(text);
-    
-    // Log manual entry
-    if (text) {
-      console.log('⌨️ Entrada Manual (Raw):', text);
-    }
-  };
-
-  const verifyQrCode = async (data: string) => {
-    console.log('🔄 Iniciando verificación de QR...');
+  const verifyQrCode = useCallback(async (data: string) => {
+    console.log('Verifying QR code...');
     
     try {
-      const result = await ApiService.verifyWristband(data);
+      const result: WristbandVerificationResult = await ApiService.verifyWristband(data);
       
       if (result.valid) {
         setVerificationResult('success');
         setVerificationMessage(result.message || 'Brazalete verificado correctamente.');
-        console.log('✅ Verificación exitosa:', result.message);
       } else {
         setVerificationResult('error');
         setVerificationMessage(result.message || 'Brazalete no válido o ya escaneado.');
-        console.log('❌ Verificación fallida:', result.message);
       }
       
       setModalVisible(true);
 
-      // Auto-close after 3 seconds
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         closeModal();
       }, 3000);
 
+      return () => clearTimeout(timeoutId);
     } catch (error) {
       console.error('Error verifying QR code:', error);
       setVerificationResult('error');
       setVerificationMessage('Error de conexión. Intente nuevamente.');
       setModalVisible(true);
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleVerifyPress = async () => {
-    if (!qrData) return;
+  const handleBarCodeScanned = useCallback(async ({ data }: { data: string }) => {
+    if (scanned || !isCameraActive) return;
+    
+    setScanned(true);
+    setQrData(data);
+    await verifyQrCode(data);
+  }, [scanned, isCameraActive, verifyQrCode]);
+
+  const handleManualEntry = useCallback((text: string) => {
+    setQrData(text);
+  }, []);
+
+  const handleVerifyPress = useCallback(async () => {
+    if (!qrData || !isCameraActive) return;
     await verifyQrCode(qrData);
-  };
+  }, [qrData, isCameraActive, verifyQrCode]);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     setModalVisible(false);
     setScanned(false);
     setQrData('');
-    setTimeout(() => {
+    const focusTimeout = setTimeout(() => {
       if (isCameraActive) {
         inputRef.current?.focus();
       }
     }, 100);
-  };
+    return () => clearTimeout(focusTimeout);
+  }, [isCameraActive]);
 
-  const handleProfilePress = () => {
+  const handleProfilePress = useCallback(() => {
     router.push('/(tabs)/profile');
-  };
+  }, [router]);
 
-  const handleDashboardPress = () => {
+  const handleDashboardPress = useCallback(() => {
     router.push('/(tabs)');
-  };
+  }, [router]);
 
-  const getInitials = (email: string | null) => {
+  const getInitials = useCallback((email: string | null): string => {
     if (!email) return 'U';
-    const parts = email.split('@')[0].split('.');
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
+    try {
+      const parts = email.split('@')[0].split('.');
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return email[0].toUpperCase();
+    } catch (error) {
+      console.error('Error getting initials:', error);
+      return 'U';
     }
-    return email[0].toUpperCase();
-  };
+  }, []);
 
   if (!permission) {
-    // Camera permissions are still loading
     return (
       <View style={styles.container}>
         <Text style={styles.loadingText}>Cargando permisos de cámara...</Text>
@@ -185,16 +190,19 @@ export default function ScannerScreen() {
   }
 
   if (!permission.granted) {
-    // Camera permissions are not granted yet
     return (
       <View style={styles.permissionContainer}>
         <View style={styles.permissionContent}>
           <QrCode size={64} color="#C1E8FF" />
           <Text style={styles.permissionTitle}>Acceso a Cámara</Text>
           <Text style={styles.permissionText}>
-            Necesitamos acceso a la cámara para escanear los códigos QR de los brazaletes
+            Necesitamos acceso a la cámara para escanear los códigos QR
           </Text>
-          <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
+          <TouchableOpacity 
+            style={styles.permissionButton} 
+            onPress={requestPermission}
+            activeOpacity={0.7}
+          >
             <Text style={styles.permissionButtonText}>Permitir Acceso</Text>
           </TouchableOpacity>
         </View>
@@ -204,19 +212,27 @@ export default function ScannerScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Custom Header */}
+      {/* Header */}
       <View style={styles.customHeader}>
         <View style={styles.headerLeft}>
           <Text style={styles.greeting}>Hola,</Text>
-          <Text style={styles.userName} numberOfLines={1}>
+          <Text style={styles.userName} numberOfLines={1} ellipsizeMode="tail">
             {userEmail ? userEmail.split('@')[0] : 'Usuario'}
           </Text>
         </View>
         <View style={styles.headerRight}>
-          <TouchableOpacity onPress={handleDashboardPress} style={styles.headerButton}>
+          <TouchableOpacity 
+            onPress={handleDashboardPress} 
+            style={styles.headerButton}
+            activeOpacity={0.7}
+          >
             <BarChart3 size={24} color="#C1E8FF" />
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleProfilePress} style={styles.profileButton}>
+          <TouchableOpacity 
+            onPress={handleProfilePress} 
+            style={styles.profileButton}
+            activeOpacity={0.7}
+          >
             <View style={styles.avatarContainer}>
               <Text style={styles.avatarText}>{getInitials(userEmail)}</Text>
             </View>
@@ -224,7 +240,7 @@ export default function ScannerScreen() {
         </View>
       </View>
 
-      {/* Camera Container */}
+      {/* Camera View */}
       <View style={styles.cameraContainer}>
         {isCameraActive && (
           <CameraView
@@ -236,7 +252,6 @@ export default function ScannerScreen() {
           />
         )}
         
-        {/* Overlay positioned absolutely over the camera */}
         <View style={styles.overlay}>
           <View style={styles.topSection}>
             <Text style={styles.instructionTitle}>Escanear Brazalete</Text>
@@ -255,12 +270,10 @@ export default function ScannerScreen() {
             <View style={styles.cornerBR} />
             {isCameraActive && <View style={styles.scanLine} />}
           </View>
-          
-          <View style={styles.bottomSection} />
         </View>
       </View>
 
-      {/* Hidden input to capture scanner data */}
+      {/* Hidden Input for manual entry */}
       <TextInput
         ref={inputRef}
         style={styles.hiddenInput}
@@ -268,8 +281,11 @@ export default function ScannerScreen() {
         onChangeText={handleManualEntry}
         autoCorrect={false}
         autoCapitalize="none"
+        keyboardType="default"
+        editable={isCameraActive}
       />
 
+      {/* Verify Button */}
       <View style={styles.buttonContainer}>
         <Animated.View style={[{ transform: [{ scale: scaleAnim }] }]}>
           <TouchableOpacity
@@ -280,6 +296,7 @@ export default function ScannerScreen() {
             ]}
             onPress={handleVerifyPress}
             disabled={!qrData || !isCameraActive}
+            activeOpacity={0.7}
           >
             <QrCode size={24} color="#fff" />
             <Text style={styles.verifyButtonText}>
@@ -294,12 +311,13 @@ export default function ScannerScreen() {
         </Animated.View>
       </View>
 
-      {/* Verification Result Modal */}
+      {/* Result Modal */}
       <Modal
         animationType="fade"
         transparent={true}
         visible={modalVisible}
         onRequestClose={closeModal}
+        statusBarTranslucent={true}
       >
         <View style={styles.modalOverlay}>
           <Animated.View 
@@ -319,7 +337,11 @@ export default function ScannerScreen() {
             </Text>
             <Text style={styles.modalMessage}>{verificationMessage}</Text>
             <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
+              <TouchableOpacity 
+                style={styles.modalButton} 
+                onPress={closeModal}
+                activeOpacity={0.7}
+              >
                 <Text style={styles.modalButtonText}>Cerrar</Text>
               </TouchableOpacity>
               {verificationResult === 'success' && (
@@ -329,6 +351,7 @@ export default function ScannerScreen() {
                     closeModal();
                     handleDashboardPress();
                   }}
+                  activeOpacity={0.7}
                 >
                   <Text style={styles.modalButtonText}>Ver Dashboard</Text>
                 </TouchableOpacity>

@@ -11,8 +11,8 @@ type VenueCapacityProps = {
 export function VenueCapacity({ current, max, percentage, isLoading }: VenueCapacityProps) {
   const getStatusColor = () => {
     if (percentage < 70) return '#4CAF50';
-    if (percentage < 90) return '#FF9800';
-    return '#F44336';
+    if (percentage < 90) return '#FFA726';
+    return '#FF3B30';
   };
 
   const getStatusText = () => {
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 24,
-    shadowColor: '#000',
+    shadowColor: '#021024',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
@@ -109,12 +109,12 @@ const styles = StyleSheet.create({
   capacityTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#333',
+    color: '#021024',
   },
   statusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8F9FA',
+    backgroundColor: '#F0F8FF',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 16,
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     height: 160,
     borderRadius: 80,
     borderWidth: 8,
-    borderColor: '#F0F0F0',
+    borderColor: '#F0F8FF',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -155,12 +155,12 @@ const styles = StyleSheet.create({
   percentageText: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#333',
+    color: '#021024',
     marginBottom: 4,
   },
   percentageLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#7DA0CA',
     fontWeight: '500',
   },
   statsContainer: {
@@ -176,32 +176,32 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#333',
+    color: '#021024',
     marginBottom: 4,
   },
   statLabel: {
     fontSize: 14,
-    color: '#666',
+    color: '#7DA0CA',
     fontWeight: '500',
   },
   statDivider: {
     width: 1,
     height: 40,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#E0E8F0',
   },
   loadingContainer: {
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     padding: 32,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#021024',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 6,
   },
   loadingText: {
-    color: '#666',
+    color: '#7DA0CA',
     fontSize: 16,
     fontWeight: '500',
   },

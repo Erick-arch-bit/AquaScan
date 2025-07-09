@@ -7,7 +7,6 @@ type CheckerData = {
   scanned: number;
   verified: number;
   rejected: number;
-  efficiency: number;
   lastActivity: string;
 };
 
@@ -16,22 +15,21 @@ type CheckerSummaryProps = {
   isLoading: boolean;
 };
 
-export function CheckerSummary({ checkers, isLoading }: CheckerSummaryProps) {
+export function CheckerSummary({ checkers = [], isLoading = false }: CheckerSummaryProps) {
   const formatLastActivity = (timestamp: string) => {
-    const now = new Date();
-    const activity = new Date(timestamp);
-    const diffMinutes = Math.floor((now.getTime() - activity.getTime()) / (1000 * 60));
-    
-    if (diffMinutes < 1) return 'Ahora';
-    if (diffMinutes < 60) return `${diffMinutes}m`;
-    const diffHours = Math.floor(diffMinutes / 60);
-    return `${diffHours}h`;
-  };
-
-  const getEfficiencyColor = (efficiency: number) => {
-    if (efficiency >= 95) return '#4CAF50';
-    if (efficiency >= 90) return '#FF9800';
-    return '#F44336';
+    try {
+      const now = new Date();
+      const activity = new Date(timestamp);
+      const diffMinutes = Math.floor((now.getTime() - activity.getTime()) / (1000 * 60));
+      
+      if (diffMinutes < 1) return 'Ahora';
+      if (diffMinutes < 60) return `${diffMinutes}m`;
+      const diffHours = Math.floor(diffMinutes / 60);
+      return `${diffHours}h`;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (e) {
+      return 'N/A';
+    }
   };
 
   if (isLoading) {
@@ -48,7 +46,7 @@ export function CheckerSummary({ checkers, isLoading }: CheckerSummaryProps) {
     return (
       <View style={styles.container}>
         <View style={styles.emptyContainer}>
-          <User size={48} color="#CCC" />
+          <User size={48} color="#7DA0CA" />
           <Text style={styles.emptyText}>No hay información de verificadores disponible</Text>
         </View>
       </View>
@@ -63,13 +61,13 @@ export function CheckerSummary({ checkers, isLoading }: CheckerSummaryProps) {
           <Text style={[styles.headerCell, styles.nameColumn]}>Verificador</Text>
           <Text style={[styles.headerCell, styles.countColumn]}>Escan.</Text>
           <Text style={[styles.headerCell, styles.countColumn]}>Verif.</Text>
-          <Text style={[styles.headerCell, styles.countColumn]}>Efic.</Text>
+          <Text style={[styles.headerCell, styles.countColumn]}>Rech.</Text>
           <Text style={[styles.headerCell, styles.countColumn]}>Últ.</Text>
         </View>
         
         <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           {checkers.map((checker, index) => (
-            <View key={checker.id} style={[
+            <View key={`${checker.id}-${index}`} style={[
               styles.row,
               index % 2 === 0 ? styles.evenRow : styles.oddRow
             ]}>
@@ -77,15 +75,15 @@ export function CheckerSummary({ checkers, isLoading }: CheckerSummaryProps) {
                 <View style={styles.checkerInfo}>
                   <View style={styles.checkerAvatar}>
                     <Text style={styles.checkerInitials}>
-                      {checker.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                      {checker.name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                     </Text>
                   </View>
                   <View style={styles.checkerDetails}>
-                    <Text style={styles.checkerName} numberOfLines={1}>
-                      {checker.name}
+                    <Text style={styles.checkerName} numberOfLines={1} ellipsizeMode="tail">
+                      {checker.name || 'N/A'}
                     </Text>
                     <View style={styles.activityContainer}>
-                      <Clock size={10} color="#999" />
+                      <Clock size={10} color="#7DA0CA" />
                       <Text style={styles.activityText}>
                         {formatLastActivity(checker.lastActivity)}
                       </Text>
@@ -94,23 +92,18 @@ export function CheckerSummary({ checkers, isLoading }: CheckerSummaryProps) {
                 </View>
               </View>
               
-              <Text style={[styles.cell, styles.countColumn]}>{checker.scanned}</Text>
+              <Text style={[styles.cell, styles.countColumn]}>{checker.scanned ?? 0}</Text>
               
               <Text style={[styles.cell, styles.countColumn, styles.verifiedText]}>
-                {checker.verified}
+                {checker.verified ?? 0}
               </Text>
               
-              <View style={[styles.cell, styles.countColumn, styles.efficiencyContainer]}>
-                <Text style={[
-                  styles.efficiencyText, 
-                  { color: getEfficiencyColor(checker.efficiency) }
-                ]}>
-                  {checker.efficiency.toFixed(1)}%
-                </Text>
-              </View>
-              
               <Text style={[styles.cell, styles.countColumn, styles.rejectedText]}>
-                {checker.rejected}
+                {checker.rejected ?? 0}
+              </Text>
+              
+              <Text style={[styles.cell, styles.countColumn, styles.activityCell]}>
+                {formatLastActivity(checker.lastActivity)}
               </Text>
             </View>
           ))}
@@ -126,9 +119,9 @@ export function CheckerSummary({ checkers, isLoading }: CheckerSummaryProps) {
               </Text>
             </View>
             <View style={styles.footerStat}>
-              <User size={16} color="#2196F3" />
+              <User size={16} color="#052859" />
               <Text style={styles.footerStatText}>
-                {checkers.reduce((sum, c) => sum + c.scanned, 0)} total escaneados
+                {checkers.reduce((sum, c) => sum + (c.scanned || 0), 0)} total escaneados
               </Text>
             </View>
           </View>
@@ -138,6 +131,7 @@ export function CheckerSummary({ checkers, isLoading }: CheckerSummaryProps) {
   );
 }
 
+// Los estilos se mantienen exactamente igual
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,
@@ -147,7 +141,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     overflow: 'hidden',
-    shadowColor: '#000',
+    shadowColor: '#021024',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
@@ -156,7 +150,7 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: 'row',
-    backgroundColor: '#FF6B47',
+    backgroundColor: '#052859',
     paddingVertical: 16,
     paddingHorizontal: 16,
   },
@@ -173,18 +167,18 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: '#F0F8FF',
     alignItems: 'center',
   },
   evenRow: {
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#FAFCFF',
   },
   oddRow: {
     backgroundColor: '#FFFFFF',
   },
   cell: {
     fontSize: 14,
-    color: '#333',
+    color: '#021024',
     fontWeight: '500',
   },
   nameColumn: {
@@ -203,7 +197,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#FF6B47',
+    backgroundColor: '#052859',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
@@ -219,7 +213,7 @@ const styles = StyleSheet.create({
   checkerName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: '#021024',
     marginBottom: 2,
   },
   activityContainer: {
@@ -229,29 +223,26 @@ const styles = StyleSheet.create({
   },
   activityText: {
     fontSize: 11,
-    color: '#999',
+    color: '#7DA0CA',
+  },
+  activityCell: {
+    color: '#7DA0CA',
+    fontSize: 12,
   },
   verifiedText: {
     color: '#4CAF50',
     fontWeight: '600',
   },
   rejectedText: {
-    color: '#F44336',
+    color: '#FF3B30',
     fontWeight: '600',
-  },
-  efficiencyContainer: {
-    alignItems: 'center',
-  },
-  efficiencyText: {
-    fontWeight: '600',
-    fontSize: 13,
   },
   footer: {
     paddingVertical: 16,
     paddingHorizontal: 16,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    backgroundColor: '#FAFAFA',
+    borderTopColor: '#F0F8FF',
+    backgroundColor: '#FAFCFF',
   },
   footerStats: {
     flexDirection: 'row',
@@ -264,7 +255,7 @@ const styles = StyleSheet.create({
   },
   footerStatText: {
     fontSize: 12,
-    color: '#666',
+    color: '#7DA0CA',
     fontWeight: '500',
   },
   loadingContainer: {
@@ -272,14 +263,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 32,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#021024',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 6,
   },
   loadingText: {
-    color: '#666',
+    color: '#7DA0CA',
     fontSize: 16,
     fontWeight: '500',
   },
@@ -288,14 +279,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 40,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#021024',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 16,
     elevation: 6,
   },
   emptyText: {
-    color: '#666',
+    color: '#7DA0CA',
     fontSize: 16,
     fontWeight: '500',
     textAlign: 'center',

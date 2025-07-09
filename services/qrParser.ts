@@ -74,14 +74,6 @@ export class QRParserService {
   /**
    * Analizar cadena de código QR en datos estructurados
    * Formato esperado: Evento/Ubicación/Zona/Fecha/Hora/No.brazalete
-   * 
-   * Especificaciones:
-   * - Evento: 4 dígitos
-   * - Ubicación: 4 dígitos
-   * - Zona: 2 dígitos
-   * - Fecha: Formato YYYY-MM-DD
-   * - Hora: Formato HH:MM
-   * - No.brazalete: 8 dígitos
    */
   static parseQRCode(qrString: string): QRParseResult {
     try {
@@ -294,7 +286,7 @@ export class QRParserService {
   }
 
   /**
-   * Registrar datos analizados en consola con información detallada de campos
+   * Registrar datos analizados en consola con información detallada
    */
   static logParsedData(data: QRData): void {
     console.log('🔍 === DATOS QR DESCOMPUESTOS ===');
@@ -307,125 +299,5 @@ export class QRParserService {
     console.log('🎫 N. Brazalete (8 dígitos):', data.numeroBrazalete);
     console.log('⏰ Procesado:', new Date().toLocaleString());
     console.log('================================');
-    
-    // Registro adicional para depuración
-    const validation = this.validateQRData(data);
-    console.log('🔧 === VALIDACIÓN DE FORMATO ===');
-    console.log('📊 Total de campos:', this.EXPECTED_PARTS);
-    console.log('✅ Estado de validación:', validation.valid ? 'VÁLIDO' : 'INVÁLIDO');
-    
-    if (validation.errors.length > 0) {
-      console.log('❌ Errores:', validation.errors);
-    }
-    
-    if (validation.warnings.length > 0) {
-      console.log('⚠️ Advertencias:', validation.warnings);
-    }
-    
-    console.log('✅ Validaciones:', [
-      this.REGEX_PATTERNS.evento.test(data.evento) ? '✓ Evento (4 dígitos)' : `✗ Evento (${data.evento.length} chars)`,
-      this.REGEX_PATTERNS.ubicacion.test(data.ubicacion) ? '✓ Ubicación (4 dígitos)' : `✗ Ubicación (${data.ubicacion.length} chars)`,
-      this.REGEX_PATTERNS.zona.test(data.zona) ? '✓ Zona (2 dígitos)' : `✗ Zona (${data.zona.length} chars)`,
-      this.REGEX_PATTERNS.fecha.test(data.fecha) ? '✓ Fecha (YYYY-MM-DD)' : '⚠ Fecha (formato no estándar)',
-      this.REGEX_PATTERNS.hora.test(data.hora) ? '✓ Hora (HH:MM)' : '⚠ Hora (formato no estándar)',
-      this.REGEX_PATTERNS.numeroBrazalete.test(data.numeroBrazalete) ? '✓ N.Brazalete (8 dígitos)' : `✗ N.Brazalete (${data.numeroBrazalete.length} chars)`
-    ].join(', '));
-    console.log('===================================');
-  }
-
-  /**
-   * Obtener descripciones de campos para depuración
-   */
-  static getFieldDescriptions(): Record<string, string> {
-    return {
-      evento: 'Código del evento (4 dígitos numéricos)',
-      ubicacion: 'Código de ubicación (4 dígitos numéricos)', 
-      zona: 'Código de zona (2 dígitos numéricos)',
-      fecha: 'Fecha del evento (formato YYYY-MM-DD)',
-      hora: 'Hora del evento (formato HH:MM)',
-      numeroBrazalete: 'Número único del brazalete (8 dígitos numéricos)'
-    };
-  }
-
-  /**
-   * Probar analizador QR con datos de muestra
-   */
-  static testParser(): void {
-    console.log('🧪 === PRUEBA DEL ANALIZADOR QR ===');
-    
-    const testCases = [
-      // Casos válidos
-      '1234/5678/01/2024-01-15/10:30/12345678',
-      '9876/5432/99/2024-01-16/14:00/87654321',
-      '0001/0002/03/2024-01-17/20:15/11111111',
-      
-      // Casos inválidos para probar validación
-      '123/5678/01/2024-01-15/10:30/12345678',  // Evento: 3 dígitos
-      '1234/567/01/2024-01-15/10:30/12345678',  // Ubicación: 3 dígitos
-      '1234/5678/1/2024-01-15/10:30/12345678',  // Zona: 1 dígito
-      '1234/5678/01/2024-01-15/10:30/1234567',  // Brazalete: 7 dígitos
-      '1234/5678/01/fecha/10:30/12345678',      // Fecha inválida
-      '1234/5678/01/2024-01-15/25:30/12345678', // Hora inválida
-    ];
-
-    testCases.forEach((testCase, index) => {
-      console.log(`\n📝 Caso de prueba ${index + 1}:`);
-      console.log('Entrada:', testCase);
-      
-      const result = this.parseQRCode(testCase);
-      if (result.success && result.data) {
-        console.log('✅ Análisis exitoso');
-        this.logParsedData(result.data);
-      } else {
-        console.log('❌ Error:', result.error);
-        console.log('🔧 Código de error:', result.errorCode);
-      }
-    });
-    
-    console.log('===============================');
-  }
-
-  /**
-   * Generar código QR de muestra para pruebas
-   */
-  static generateSampleQR(): string {
-    const evento = Math.floor(1000 + Math.random() * 9000).toString(); // 4 dígitos
-    const ubicacion = Math.floor(1000 + Math.random() * 9000).toString(); // 4 dígitos
-    const zona = Math.floor(10 + Math.random() * 90).toString(); // 2 dígitos
-    const fecha = '2024-01-15';
-    const hora = '10:30';
-    const numeroBrazalete = Math.floor(10000000 + Math.random() * 90000000).toString(); // 8 dígitos
-    
-    return `${evento}/${ubicacion}/${zona}/${fecha}/${hora}/${numeroBrazalete}`;
-  }
-
-  /**
-   * Obtener estadísticas de análisis
-   */
-  static getParsingStats(results: QRParseResult[]): {
-    total: number;
-    successful: number;
-    failed: number;
-    successRate: number;
-    errorBreakdown: Record<string, number>;
-  } {
-    const total = results.length;
-    const successful = results.filter(r => r.success).length;
-    const failed = total - successful;
-    const successRate = total > 0 ? (successful / total) * 100 : 0;
-    
-    const errorBreakdown: Record<string, number> = {};
-    results.filter(r => !r.success).forEach(r => {
-      const errorCode = r.errorCode || 'UNKNOWN';
-      errorBreakdown[errorCode] = (errorBreakdown[errorCode] || 0) + 1;
-    });
-
-    return {
-      total,
-      successful,
-      failed,
-      successRate,
-      errorBreakdown
-    };
   }
 }

@@ -41,7 +41,7 @@ export default function TabLayout() {
         tabBarActiveTintColor: '#FFFFFF',
         tabBarInactiveTintColor: 'rgba(255, 255, 255, 0.6)',
         tabBarStyle: styles.tabBar,
-        headerShown: route.name !== 'scanner', // Ocultar encabezado solo para scanner
+        headerShown: route.name !== 'scanner',
         headerStyle: styles.header,
         headerTitleStyle: styles.headerTitle,
         headerTintColor: '#FFFFFF',
@@ -81,7 +81,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          href: null, // Ocultar de la barra de pestañas
+          href: null,
         }}
       />
     </Tabs>
@@ -90,7 +90,7 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: '#FF6B47',
+    backgroundColor: '#052859',
     borderTopColor: 'transparent',
     height: 85,
     paddingBottom: 25,
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   header: {
-    backgroundColor: '#FF6B47',
+    backgroundColor: '#052859',
     shadowColor: 'transparent',
     elevation: 0,
     height: 100,
