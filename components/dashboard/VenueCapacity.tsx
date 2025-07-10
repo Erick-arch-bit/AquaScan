@@ -5,26 +5,28 @@ type VenueCapacityProps = {
   current: number;
   max: number;
   percentage: number;
+  status: 'normal' | 'warning' | 'critical';
+  statusText: string;
   isLoading: boolean;
 };
 
-export function VenueCapacity({ current, max, percentage, isLoading }: VenueCapacityProps) {
+export function VenueCapacity({ current, max, percentage, status, statusText, isLoading }: VenueCapacityProps) {
   const getStatusColor = () => {
-    if (percentage < 70) return '#4CAF50';
-    if (percentage < 90) return '#FFA726';
-    return '#FF3B30';
-  };
-
-  const getStatusText = () => {
-    if (percentage < 70) return 'Aforo Normal';
-    if (percentage < 90) return 'Aforo Elevado';
-    return 'Aforo Crítico';
+    switch (status) {
+      case 'normal': return '#4CAF50';
+      case 'warning': return '#FFA726';
+      case 'critical': return '#FF3B30';
+      default: return '#4CAF50';
+    }
   };
 
   const getStatusIcon = () => {
-    if (percentage < 70) return <TrendingUp size={16} color={getStatusColor()} />;
-    if (percentage < 90) return <AlertTriangle size={16} color={getStatusColor()} />;
-    return <AlertCircle size={16} color={getStatusColor()} />;
+    switch (status) {
+      case 'normal': return <TrendingUp size={16} color={getStatusColor()} />;
+      case 'warning': return <AlertTriangle size={16} color={getStatusColor()} />;
+      case 'critical': return <AlertCircle size={16} color={getStatusColor()} />;
+      default: return <TrendingUp size={16} color={getStatusColor()} />;
+    }
   };
 
   if (isLoading) {
@@ -45,7 +47,7 @@ export function VenueCapacity({ current, max, percentage, isLoading }: VenueCapa
           <View style={styles.statusContainer}>
             {getStatusIcon()}
             <Text style={[styles.statusText, { color: getStatusColor() }]}>
-              {getStatusText()}
+              {statusText}
             </Text>
           </View>
         </View>

@@ -2,41 +2,24 @@ import { CheckerSummary } from '@/components/dashboard/CheckerSummary';
 import { VenueCapacity } from '@/components/dashboard/VenueCapacity';
 import { ApiService } from '@/services/api';
 import { AuthService } from '@/services/auth';
+import { ProcessedCheckerData, ProcessedVenueCapacity } from '@/services/checkers';
 import { Clock, RefreshCw, TrendingUp, Users } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-type CapacityStatus = 'normal' | 'warning' | 'critical';
-
-interface CapacityData {
-  current: number;
-  max: number;
-  percentage: number;
-  status: CapacityStatus;
-  lastUpdated: string;
-}
-
-interface Checker {
-  id: string;
-  name: string;
-  scanned: number;
-  verified: number;
-  rejected: number;
-  lastActivity: string;
-}
-
 export default function DashboardScreen() {
-  const [capacity, setCapacity] = useState<CapacityData>({
+  const [capacity, setCapacity] = useState<ProcessedVenueCapacity>({
     current: 0,
     max: 0,
     percentage: 0,
     status: 'normal',
+    statusText: 'Normal',
     lastUpdated: ''
   });
-  const [checkers, setCheckers] = useState<Checker[]>([]);
+  const [checkers, setCheckers] = useState<ProcessedCheckerData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userInfo, setUserInfo] = useState<{ email: string | null; name: string | null }>({ email: null, name: null });
   const [lastUpdate, setLastUpdate] = useState<string>('');
 
   const loadData = async () => {
@@ -47,14 +30,8 @@ export default function DashboardScreen() {
         ApiService.getCheckersSummary()
       ]);
       
-      setCapacity(capacityData || {
-        current: 0,
-        max: 0,
-        percentage: 0,
-        status: 'normal',
-        lastUpdated: ''
-      });
-      setCheckers(checkersData || []);
+      setCapacity(capacityData);
+      setCheckers(checkersData);
       setLastUpdate(new Date().toLocaleTimeString());
     } catch (error) {
       console.error('Error cargando datos del dashboard:', error);
@@ -71,30 +48,30 @@ export default function DashboardScreen() {
 
   useEffect(() => {
     const loadUserData = async () => {
-      try {
-        const email = await AuthService.getUserEmail();
-        setUserEmail(email);
-      } catch (error) {
-        console.error('Error cargando datos de usuario:', error);
-      }
+      const info = await AuthService.getUserInfo();
+      setUserInfo({ email: info.email, name: info.name });
     };
     
     loadUserData();
     loadData();
 
+    // Auto-actualizar cada 30 segundos
     const intervalId = setInterval(loadData, 30000);
 
     return () => clearInterval(intervalId);
   }, []);
 
-  const getUserName = (email: string | null) => {
-    if (!email) return 'Usuario';
-    return email.split('@')[0]
-      .replace('.', ' ')
-      .replace(/\b\w/g, l => l.toUpperCase());
+  const getUserDisplayName = () => {
+    if (userInfo.name) {
+      return userInfo.name;
+    }
+    if (userInfo.email) {
+      return userInfo.email.split('@')[0].replace('.', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+    return 'Usuario';
   };
 
-  const getStatusColor = (): string => {
+  const getStatusColor = () => {
     switch (capacity.status) {
       case 'normal': return '#4CAF50';
       case 'warning': return '#FFA726';
@@ -103,28 +80,15 @@ export default function DashboardScreen() {
     }
   };
 
-  const getStatusText = (): string => {
-    switch (capacity.status) {
-      case 'normal': return 'Normal';
-      case 'warning': return 'Atención';
-      case 'critical': return 'Crítico';
-      default: return 'Normal';
-    }
-  };
-
-  const totalScanned = checkers.reduce((sum, checker) => sum + (checker.scanned || 0), 0);
-  const totalVerified = checkers.reduce((sum, checker) => sum + (checker.verified || 0), 0);
+  const totalScanned = checkers.reduce((sum, checker) => sum + checker.scanned, 0);
+  const totalVerified = checkers.reduce((sum, checker) => sum + checker.verified, 0);
 
   return (
     <View style={styles.container}>
       <ScrollView 
         style={styles.scrollView}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
-            onRefresh={onRefresh} 
-            tintColor="#052859"
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         showsVerticalScrollIndicator={false}
       >
@@ -133,7 +97,7 @@ export default function DashboardScreen() {
           <View style={styles.titleSection}>
             <Text style={styles.venueTitle}>Balneario Xolotl</Text>
             <Text style={styles.userGreeting}>
-              Hola, {getUserName(userEmail)}
+              Hola, {getUserDisplayName()}
             </Text>
             {lastUpdate && (
               <View style={styles.lastUpdateContainer}>
@@ -144,16 +108,8 @@ export default function DashboardScreen() {
               </View>
             )}
           </View>
-          <TouchableOpacity 
-            onPress={onRefresh} 
-            disabled={isLoading || refreshing} 
-            style={styles.refreshButton}
-          >
-            <RefreshCw 
-              size={20} 
-              color="#052859" 
-              style={isLoading || refreshing ? styles.refreshingIcon : undefined} 
-            />
+          <TouchableOpacity onPress={onRefresh} disabled={isLoading} style={styles.refreshButton}>
+            <RefreshCw size={20} color="#052859" />
           </TouchableOpacity>
         </View>
 
@@ -189,7 +145,7 @@ export default function DashboardScreen() {
           <View style={styles.statusHeader}>
             <Text style={styles.statusTitle}>Estado del Venue</Text>
             <View style={[styles.statusBadge, { backgroundColor: getStatusColor() }]}>
-              <Text style={styles.statusBadgeText}>{getStatusText()}</Text>
+              <Text style={styles.statusBadgeText}>{capacity.statusText}</Text>
             </View>
           </View>
         </View>
@@ -198,6 +154,8 @@ export default function DashboardScreen() {
           current={capacity.current} 
           max={capacity.max} 
           percentage={capacity.percentage} 
+          status={capacity.status}
+          statusText={capacity.statusText}
           isLoading={isLoading} 
         />
 
@@ -265,9 +223,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#F0F8FF',
     marginTop: 4,
   },
-  refreshingIcon: {
-    opacity: 0.5,
-  },
   statsContainer: {
     flexDirection: 'row',
     paddingHorizontal: 20,
@@ -315,7 +270,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
   },
   statusTitle: {
     fontSize: 20,

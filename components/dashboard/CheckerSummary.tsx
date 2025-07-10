@@ -1,35 +1,22 @@
+import { ProcessedCheckerData } from '@/services/checkers';
 import { Clock, TrendingUp, User } from 'lucide-react-native';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-type CheckerData = {
-  id: string;
-  name: string;
-  scanned: number;
-  verified: number;
-  rejected: number;
-  lastActivity: string;
-};
-
 type CheckerSummaryProps = {
-  checkers: CheckerData[];
+  checkers: ProcessedCheckerData[];
   isLoading: boolean;
 };
 
-export function CheckerSummary({ checkers = [], isLoading = false }: CheckerSummaryProps) {
+export function CheckerSummary({ checkers, isLoading }: CheckerSummaryProps) {
   const formatLastActivity = (timestamp: string) => {
-    try {
-      const now = new Date();
-      const activity = new Date(timestamp);
-      const diffMinutes = Math.floor((now.getTime() - activity.getTime()) / (1000 * 60));
-      
-      if (diffMinutes < 1) return 'Ahora';
-      if (diffMinutes < 60) return `${diffMinutes}m`;
-      const diffHours = Math.floor(diffMinutes / 60);
-      return `${diffHours}h`;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (e) {
-      return 'N/A';
-    }
+    const now = new Date();
+    const activity = new Date(timestamp);
+    const diffMinutes = Math.floor((now.getTime() - activity.getTime()) / (1000 * 60));
+    
+    if (diffMinutes < 1) return 'Ahora';
+    if (diffMinutes < 60) return `${diffMinutes}m`;
+    const diffHours = Math.floor(diffMinutes / 60);
+    return `${diffHours}h`;
   };
 
   if (isLoading) {
@@ -67,7 +54,7 @@ export function CheckerSummary({ checkers = [], isLoading = false }: CheckerSumm
         
         <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           {checkers.map((checker, index) => (
-            <View key={`${checker.id}-${index}`} style={[
+            <View key={checker.id} style={[
               styles.row,
               index % 2 === 0 ? styles.evenRow : styles.oddRow
             ]}>
@@ -75,12 +62,12 @@ export function CheckerSummary({ checkers = [], isLoading = false }: CheckerSumm
                 <View style={styles.checkerInfo}>
                   <View style={styles.checkerAvatar}>
                     <Text style={styles.checkerInitials}>
-                      {checker.name?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                      {checker.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
                     </Text>
                   </View>
                   <View style={styles.checkerDetails}>
-                    <Text style={styles.checkerName} numberOfLines={1} ellipsizeMode="tail">
-                      {checker.name || 'N/A'}
+                    <Text style={styles.checkerName} numberOfLines={1}>
+                      {checker.name}
                     </Text>
                     <View style={styles.activityContainer}>
                       <Clock size={10} color="#7DA0CA" />
@@ -92,14 +79,14 @@ export function CheckerSummary({ checkers = [], isLoading = false }: CheckerSumm
                 </View>
               </View>
               
-              <Text style={[styles.cell, styles.countColumn]}>{checker.scanned ?? 0}</Text>
+              <Text style={[styles.cell, styles.countColumn]}>{checker.scanned}</Text>
               
               <Text style={[styles.cell, styles.countColumn, styles.verifiedText]}>
-                {checker.verified ?? 0}
+                {checker.verified}
               </Text>
               
               <Text style={[styles.cell, styles.countColumn, styles.rejectedText]}>
-                {checker.rejected ?? 0}
+                {checker.rejected}
               </Text>
               
               <Text style={[styles.cell, styles.countColumn, styles.activityCell]}>
@@ -121,7 +108,7 @@ export function CheckerSummary({ checkers = [], isLoading = false }: CheckerSumm
             <View style={styles.footerStat}>
               <User size={16} color="#052859" />
               <Text style={styles.footerStatText}>
-                {checkers.reduce((sum, c) => sum + (c.scanned || 0), 0)} total escaneados
+                {checkers.reduce((sum, c) => sum + c.scanned, 0)} total escaneados
               </Text>
             </View>
           </View>
@@ -131,7 +118,6 @@ export function CheckerSummary({ checkers = [], isLoading = false }: CheckerSumm
   );
 }
 
-// Los estilos se mantienen exactamente igual
 const styles = StyleSheet.create({
   container: {
     marginHorizontal: 20,

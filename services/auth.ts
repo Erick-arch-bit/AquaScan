@@ -1,27 +1,33 @@
 import { Platform } from 'react-native';
 
-// Claves de almacenamiento para token de autenticación y datos de usuario
+// Claves de almacenamiento (se mantienen igual)
 const AUTH_TOKEN_KEY = 'qrscanner_auth_token';
 const USER_EMAIL_KEY = 'qrscanner_user_email';
 
-// Configuración de la API
+// Configuración actualizada con los nuevos endpoints
 const API_CONFIG = {
-  baseURL: 'https://api.xolotlcl.com/api',
+  baseURL: 'https://api-taquilla.ftgo.com.mx/v1/api',
   timeout: 15000,
   retries: 3,
   retryDelay: 1000,
 };
 
-// Tipos de respuesta de la API
+// Tipos de respuesta (actualizados para FTGO)
 interface LoginResponse {
-  status: number;
-  access_token: string;
-  message?: string;
+  success: boolean;
+  message: string;
+  data?: {
+    access_token: string;
+    name: string;
+  };
+  error?: {
+    http_code: number;
+  };
 }
 
 interface LogoutResponse {
-  status: number;
-  msg: string;
+  success: boolean;
+  message: string;
 }
 
 interface AuthResult {
@@ -30,16 +36,15 @@ interface AuthResult {
   data?: any;
 }
 
-/**
- * Servicio de autenticación para login y gestión de tokens
- * Maneja autenticación segura con la API externa
- */
 export class AuthService {
+  static getUserName() {
+    throw new Error('Method not implemented.');
+  }
   private static token: string | null = null;
   private static userEmail: string | null = null;
 
   /**
-   * Obtener encabezados con token Bearer
+   * Obtener encabezados con token Bearer (igual que antes)
    */
   static async getAuthHeaders(): Promise<HeadersInit> {
     const token = await this.getToken();
@@ -52,7 +57,7 @@ export class AuthService {
   }
 
   /**
-   * Realizar solicitud HTTP con reintentos automáticos
+   * Realizar solicitud HTTP con reintentos automáticos (igual que antes)
    */
   private static async makeRequest(
     url: string, 
@@ -77,7 +82,6 @@ export class AuthService {
     } catch (error) {
       clearTimeout(timeoutId);
       
-      // Reintentar en caso de error de red
       if (retries > 0 && this.isRetryableError(error)) {
         console.log(`🔄 Reintentando solicitud... (${API_CONFIG.retries - retries + 1}/${API_CONFIG.retries})`);
         await this.delay(API_CONFIG.retryDelay);
@@ -89,7 +93,7 @@ export class AuthService {
   }
 
   /**
-   * Verificar si un error es reintentable
+   * Verificar si un error es reintentable (igual que antes)
    */
   private static isRetryableError(error: any): boolean {
     return (
@@ -100,18 +104,18 @@ export class AuthService {
   }
 
   /**
-   * Retraso para reintentos
+   * Retraso para reintentos (igual que antes)
    */
   private static delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
-   * Intentar iniciar sesión con email y contraseña
+   * Login adaptado al nuevo endpoint FTGO
    */
   static async login(email: string, password: string): Promise<AuthResult> {
     try {
-      // Validar entrada
+      // Validación de entrada (igual que antes)
       if (!email || !password) {
         return {
           success: false,
@@ -128,7 +132,8 @@ export class AuthService {
 
       console.log('🔐 Iniciando proceso de autenticación...');
       
-      const response = await this.makeRequest(`${API_CONFIG.baseURL}/loginXcl`, {
+      // Endpoint actualizado
+      const response = await this.makeRequest(`${API_CONFIG.baseURL}/login`, {
         method: 'POST',
         body: JSON.stringify({ 
           email: email.trim().toLowerCase(), 
@@ -138,15 +143,28 @@ export class AuthService {
 
       const data: LoginResponse = await response.json();
       
-      if (response.ok && data.status === 1 && data.access_token) {
-        await this.storeToken(data.access_token);
+      // Respuesta adaptada al formato FTGO
+      if (response.ok && data.success && data.data?.access_token) {
+        await this.storeToken(data.data.access_token);
         await this.storeUserEmail(email.trim().toLowerCase());
         
         console.log('✅ Autenticación exitosa');
         return {
           success: true,
           message: data.message || 'Inicio de sesión exitoso',
-          data: { token: data.access_token, email }
+          data: { 
+            token: data.data.access_token, 
+            email,
+            name: data.data.name || 'Usuario' 
+          }
+        };
+      }
+      
+      // Manejo de errores específicos de FTGO
+      if (data.error?.http_code === 404) {
+        return {
+          success: false,
+          message: 'Usuario dado de baja'
         };
       }
       
@@ -165,7 +183,7 @@ export class AuthService {
   }
 
   /**
-   * Validar formato de email
+   * Validar formato de email (igual que antes)
    */
   private static validateEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -173,7 +191,7 @@ export class AuthService {
   }
 
   /**
-   * Obtener mensaje de error amigable
+   * Obtener mensaje de error (igual que antes)
    */
   private static getErrorMessage(error: any): string {
     if (error.name === 'AbortError') {
@@ -195,7 +213,7 @@ export class AuthService {
   }
 
   /**
-   * Almacenar token de autenticación de forma segura
+   * Almacenar token de autenticación (igual que antes)
    */
   private static async storeToken(token: string): Promise<void> {
     this.token = token;
@@ -212,7 +230,7 @@ export class AuthService {
   }
 
   /**
-   * Almacenar email del usuario
+   * Almacenar email del usuario (igual que antes)
    */
   private static async storeUserEmail(email: string): Promise<void> {
     this.userEmail = email;
@@ -228,7 +246,7 @@ export class AuthService {
   }
 
   /**
-   * Obtener el token de autenticación actual
+   * Obtener el token de autenticación actual (igual que antes)
    */
   static async getToken(): Promise<string | null> {
     if (this.token) {
@@ -252,7 +270,7 @@ export class AuthService {
   }
 
   /**
-   * Obtener el email del usuario actual
+   * Obtener el email del usuario actual (igual que antes)
    */
   static async getUserEmail(): Promise<string | null> {
     if (this.userEmail) {
@@ -276,7 +294,7 @@ export class AuthService {
   }
 
   /**
-   * Verificar si el usuario está autenticado
+   * Verificar si el usuario está autenticado (igual que antes)
    */
   static async isAuthenticated(): Promise<boolean> {
     const token = await this.getToken();
@@ -284,7 +302,7 @@ export class AuthService {
   }
 
   /**
-   * Realizar solicitud autenticada a la API
+   * Realizar solicitud autenticada a la API (igual que antes)
    */
   static async authenticatedRequest(
     endpoint: string,
@@ -303,7 +321,7 @@ export class AuthService {
   }
 
   /**
-   * Cerrar sesión del usuario actual
+   * Logout adaptado al nuevo endpoint FTGO
    */
   static async logout(): Promise<AuthResult> {
     try {
@@ -313,24 +331,24 @@ export class AuthService {
         console.log('🚪 Cerrando sesión en el servidor...');
         
         try {
-          const response = await this.makeRequest(`${API_CONFIG.baseURL}/logoutXcl`, {
-            method: 'POST',
+          // Endpoint actualizado a GET
+          const response = await this.makeRequest(`${API_CONFIG.baseURL}/logout`, {
+            method: 'GET',
             headers: {
-              'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
             }
           });
 
           if (response.ok) {
             const data: LogoutResponse = await response.json();
-            console.log('✅ Logout exitoso en servidor:', data.msg);
+            console.log('✅ Logout exitoso en servidor:', data.message);
           }
         } catch (error) {
           console.warn('⚠️ Error al cerrar sesión en servidor (continuando con logout local):', error);
         }
       }
 
-      // Limpiar datos locales siempre
+      // Limpiar datos locales (igual que antes)
       this.clearLocalData();
       console.log('🧹 Datos locales limpiados');
 
@@ -341,7 +359,7 @@ export class AuthService {
     } catch (error) {
       console.error('💥 Error en logout:', error);
       
-      // Limpiar datos locales incluso si falla la solicitud al servidor
+      // Limpiar datos locales incluso si falla
       this.clearLocalData();
 
       return {
@@ -352,7 +370,7 @@ export class AuthService {
   }
 
   /**
-   * Limpiar todos los datos de autenticación locales
+   * Limpiar todos los datos de autenticación locales (igual que antes)
    */
   private static clearLocalData(): void {
     this.token = null;
@@ -369,7 +387,7 @@ export class AuthService {
   }
 
   /**
-   * Verificar estado de conexión de red
+   * Verificar estado de conexión de red (igual que antes)
    */
   static async checkNetworkConnection(): Promise<boolean> {
     try {
@@ -384,9 +402,11 @@ export class AuthService {
   }
 
   /**
-   * Obtener información del usuario autenticado
+   * Obtener información del usuario autenticado (igual que antes)
    */
-  static async getUserInfo(): Promise<{ email: string | null; isAuthenticated: boolean }> {
+  static async getUserInfo(): Promise<{
+    name: string | null; email: string | null; isAuthenticated: boolean 
+}> {
     const email = await this.getUserEmail();
     const isAuthenticated = await this.isAuthenticated();
     

@@ -1,9 +1,10 @@
 import { AuthService } from './auth';
+import { CheckersController, ProcessedCheckerData, ProcessedVenueCapacity } from './checkers';
 import { QRParserService } from './qrParser';
 
-// Configuración de la API
+// Configuración de la API actualizada
 const API_CONFIG = {
-  baseURL: 'https://api.xolotlcl.com/api',
+  baseURL: 'https://api-taquilla.ftgo.com.mx/v1/api',
   timeout: 15000,
   retries: 3,
   retryDelay: 1000,
@@ -25,24 +26,6 @@ interface VerificationResult {
   timestamp?: string;
 }
 
-interface VenueCapacity {
-  current: number;
-  max: number;
-  percentage: number;
-  status: 'normal' | 'warning' | 'critical';
-  lastUpdated: string;
-}
-
-interface CheckerData {
-  id: string;
-  name: string;
-  scanned: number;
-  verified: number;
-  rejected: number;
-  efficiency: number;
-  lastActivity: string;
-}
-
 interface Wristband {
   id: string;
   name: string;
@@ -55,60 +38,6 @@ interface Wristband {
 
 // Datos simulados para desarrollo y pruebas
 const MOCK_DATA = {
-  capacity: {
-    current: 375,
-    max: 500,
-    percentage: 75,
-    status: 'warning' as const,
-    lastUpdated: new Date().toISOString()
-  },
-  checkers: [
-    { 
-      id: '1', 
-      name: 'Juan Pérez', 
-      scanned: 87, 
-      verified: 82, 
-      rejected: 5,
-      efficiency: 94.3,
-      lastActivity: new Date(Date.now() - 300000).toISOString() // 5 min ago
-    },
-    { 
-      id: '2', 
-      name: 'Ana García', 
-      scanned: 65, 
-      verified: 63, 
-      rejected: 2,
-      efficiency: 96.9,
-      lastActivity: new Date(Date.now() - 120000).toISOString() // 2 min ago
-    },
-    { 
-      id: '3', 
-      name: 'Carlos López', 
-      scanned: 92, 
-      verified: 90, 
-      rejected: 2,
-      efficiency: 97.8,
-      lastActivity: new Date(Date.now() - 60000).toISOString() // 1 min ago
-    },
-    { 
-      id: '4', 
-      name: 'María Rodríguez', 
-      scanned: 105, 
-      verified: 99, 
-      rejected: 6,
-      efficiency: 94.3,
-      lastActivity: new Date(Date.now() - 180000).toISOString() // 3 min ago
-    },
-    { 
-      id: '5', 
-      name: 'Roberto Hernández', 
-      scanned: 38, 
-      verified: 36, 
-      rejected: 2,
-      efficiency: 94.7,
-      lastActivity: new Date(Date.now() - 900000).toISOString() // 15 min ago
-    }
-  ],
   wristbands: [
     { 
       id: 'WB-123456', 
@@ -155,8 +84,8 @@ const MOCK_DATA = {
 };
 
 /**
- * Servicio API para gestión de datos de eventos y verificación de brazaletes
- * Incluye manejo robusto de errores y reintentos automáticos
+ * Servicio API principal para gestión de datos de eventos y verificación de brazaletes
+ * Actúa como intermediario entre la UI y los controladores específicos
  */
 export class ApiService {
   private static requestCount = 0;
@@ -173,7 +102,7 @@ export class ApiService {
     this.requestCount++;
     const requestId = this.requestCount;
     
-    console.log(`🌐 [${requestId}] Iniciando solicitud: ${url}`);
+    console.log(`🌐 [API-${requestId}] Iniciando solicitud: ${url}`);
     
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
@@ -191,7 +120,7 @@ export class ApiService {
 
       clearTimeout(timeoutId);
       
-      console.log(`📡 [${requestId}] Respuesta recibida: ${response.status} ${response.statusText}`);
+      console.log(`📡 [API-${requestId}] Respuesta recibida: ${response.status} ${response.statusText}`);
 
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -208,11 +137,11 @@ export class ApiService {
     } catch (error) {
       clearTimeout(timeoutId);
       
-      console.error(`💥 [${requestId}] Error en solicitud:`, error);
+      console.error(`💥 [API-${requestId}] Error en solicitud:`, error);
       
       // Reintentar en caso de error de red
       if (retries > 0 && this.isRetryableError(error)) {
-        console.log(`🔄 [${requestId}] Reintentando... (${API_CONFIG.retries - retries + 1}/${API_CONFIG.retries})`);
+        console.log(`🔄 [API-${requestId}] Reintentando... (${API_CONFIG.retries - retries + 1}/${API_CONFIG.retries})`);
         await this.delay(API_CONFIG.retryDelay);
         return this.makeRequest(url, options, retries - 1);
       }
@@ -287,25 +216,34 @@ export class ApiService {
 
   /**
    * Obtener capacidad actual del venue
+   * Utiliza el controlador de checadores
    */
-  static async getVenueCapacity(): Promise<VenueCapacity> {
+  static async getVenueCapacity(): Promise<ProcessedVenueCapacity> {
     try {
       console.log('📊 Obteniendo capacidad del venue...');
       
-      // TODO: Descomentar cuando el endpoint esté listo
-      /*
-      const response = await this.makeRequest<VenueCapacity>(`${API_CONFIG.baseURL}/venue/capacity`);
+      // Intentar usar el endpoint real primero
+      const result = await CheckersController.getVenueCapacity();
       
-      if (response.success && response.data) {
-        return response.data;
+      if (result.success && result.data) {
+        console.log('✅ Datos reales de capacidad obtenidos:', result.data);
+        return result.data;
       }
       
-      throw new Error(response.error || 'Error al obtener capacidad del venue');
-      */
+      console.warn('⚠️ Error al obtener datos reales, usando datos simulados:', result.error);
       
-      // Usar datos simulados por ahora
-      const data = await this.mockRequest(MOCK_DATA.capacity);
-      console.log('✅ Capacidad del venue obtenida:', data);
+      // Usar datos simulados como fallback
+      const mockCapacity: ProcessedVenueCapacity = {
+        current: 375,
+        max: 500,
+        percentage: 75,
+        status: 'warning',
+        statusText: 'Atención',
+        lastUpdated: new Date().toISOString()
+      };
+      
+      const data = await this.mockRequest(mockCapacity);
+      console.log('✅ Capacidad del venue obtenida (simulada):', data);
       return data;
       
     } catch (error) {
@@ -316,25 +254,61 @@ export class ApiService {
 
   /**
    * Obtener resumen de brazaletes escaneados por cada verificador
+   * Utiliza el controlador de checadores
    */
-  static async getCheckersSummary(): Promise<CheckerData[]> {
+  static async getCheckersSummary(): Promise<ProcessedCheckerData[]> {
     try {
       console.log('👥 Obteniendo resumen de verificadores...');
       
-      // TODO: Descomentar cuando el endpoint esté listo
-      /*
-      const response = await this.makeRequest<CheckerData[]>(`${API_CONFIG.baseURL}/checkers/summary`);
+      // Intentar usar el endpoint real primero
+      const result = await CheckersController.getCheckersSummary();
       
-      if (response.success && response.data) {
-        return response.data;
+      if (result.success && result.data) {
+        console.log('✅ Datos reales de verificadores obtenidos:', result.data);
+        return result.data;
       }
       
-      throw new Error(response.error || 'Error al obtener resumen de verificadores');
-      */
+      console.warn('⚠️ Error al obtener verificadores reales, usando datos simulados:', result.error);
       
-      // Usar datos simulados por ahora
-      const data = await this.mockRequest(MOCK_DATA.checkers);
-      console.log('✅ Resumen de verificadores obtenido:', data.length, 'verificadores');
+      // Usar datos simulados como fallback
+      const mockCheckers: ProcessedCheckerData[] = [
+        { 
+          id: '1', 
+          user_id: '1',
+          name: 'Juan Pérez',
+          scanned: 87, 
+          verified: 82, 
+          rejected: 5,
+          lastActivity: new Date(Date.now() - 300000).toISOString(), // 5 min ago
+          created_at: '2025-07-08T22:30:06.000000Z',
+          updated_at: '2025-07-08T22:30:06.000000Z'
+        },
+        { 
+          id: '2', 
+          user_id: '2',
+          name: 'Ana García',
+          scanned: 65, 
+          verified: 63, 
+          rejected: 2,
+          lastActivity: new Date(Date.now() - 120000).toISOString(), // 2 min ago
+          created_at: '2025-07-08T22:30:06.000000Z',
+          updated_at: '2025-07-08T22:30:06.000000Z'
+        },
+        { 
+          id: '3', 
+          user_id: '3',
+          name: 'Carlos López',
+          scanned: 92, 
+          verified: 90, 
+          rejected: 2,
+          lastActivity: new Date(Date.now() - 60000).toISOString(), // 1 min ago
+          created_at: '2025-07-08T22:30:06.000000Z',
+          updated_at: '2025-07-08T22:30:06.000000Z'
+        }
+      ];
+      
+      const data = await this.mockRequest(mockCheckers);
+      console.log('✅ Resumen de verificadores obtenido (simulado):', data.length, 'verificadores');
       return data;
       
     } catch (error) {
@@ -350,18 +324,7 @@ export class ApiService {
     try {
       console.log('🎫 Obteniendo lista de brazaletes...');
       
-      // TODO: Descomentar cuando el endpoint esté listo
-      /*
-      const response = await this.makeRequest<Wristband[]>(`${API_CONFIG.baseURL}/wristbands`);
-      
-      if (response.success && response.data) {
-        return response.data;
-      }
-      
-      throw new Error(response.error || 'Error al obtener lista de brazaletes');
-      */
-      
-      // Usar datos simulados por ahora
+      // Por ahora usar datos simulados hasta que esté disponible el endpoint
       const data = await this.mockRequest(MOCK_DATA.wristbands);
       console.log('✅ Lista de brazaletes obtenida:', data.length, 'brazaletes');
       return data;
@@ -417,39 +380,8 @@ export class ApiService {
       const apiData = await QRParserService.formatForAPI(qrData);
       console.log('📤 Datos formateados para API:', apiData);
 
-      // TODO: Descomentar cuando el endpoint esté listo
-      /*
-      try {
-        const response = await AuthService.authenticatedRequest('/verify-wristband', {
-          method: 'POST',
-          body: JSON.stringify(apiData)
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-
-        const result = await response.json();
-        
-        console.log('✅ Respuesta del servidor:', result);
-        
-        return {
-          valid: result.success || result.valid,
-          message: result.message || 'Brazalete verificado correctamente',
-          data: result.data,
-          timestamp: new Date().toISOString()
-        };
-      } catch (error) {
-        console.error('💥 Error al verificar brazalete en servidor:', error);
-        return {
-          valid: false,
-          message: 'Error de conexión con el servidor',
-          timestamp: new Date().toISOString()
-        };
-      }
-      */
-
-      // Simular verificación por ahora
+      // TODO: Aquí se integrará con el endpoint real de verificación cuando esté disponible
+      // Por ahora simular verificación
       await this.mockRequest(null, 800); // Simular retraso de API
 
       // Lógica de verificación simulada basada en datos analizados
@@ -462,11 +394,12 @@ export class ApiService {
         // Actualizar datos simulados para simular cambios de estado
         const existingWristband = MOCK_DATA.wristbands.find(w => w.id === qrData.numeroBrazalete);
         const userEmail = await AuthService.getUserEmail();
+        const userName = await AuthService.getUserName();
         
         if (existingWristband) {
           existingWristband.status = 'verified';
           existingWristband.verifiedAt = new Date().toISOString();
-          existingWristband.verifiedBy = userEmail || 'Usuario Actual';
+          existingWristband.verifiedBy = userName || userEmail || 'Usuario Actual';
           existingWristband.evento = qrData.evento;
           existingWristband.zona = qrData.zona;
         } else {
@@ -476,24 +409,10 @@ export class ApiService {
             name: `Evento ${qrData.evento} - Zona ${qrData.zona}`,
             status: 'verified',
             verifiedAt: new Date().toISOString(),
-            verifiedBy: userEmail || 'Usuario Actual',
+            verifiedBy: userName || userEmail || 'Usuario Actual',
             evento: qrData.evento,
             zona: qrData.zona
           });
-        }
-
-        // Actualizar capacidad simulada
-        MOCK_DATA.capacity.current = Math.min(MOCK_DATA.capacity.current + 1, MOCK_DATA.capacity.max);
-        MOCK_DATA.capacity.percentage = Math.round((MOCK_DATA.capacity.current / MOCK_DATA.capacity.max) * 100);
-        MOCK_DATA.capacity.lastUpdated = new Date().toISOString();
-        
-        // Actualizar estado basado en porcentaje
-        if (MOCK_DATA.capacity.percentage < 70) {
-          MOCK_DATA.capacity.status = 'normal';
-        } else if (MOCK_DATA.capacity.percentage < 90) {
-          MOCK_DATA.capacity.status = 'warning';
-        } else {
-          MOCK_DATA.capacity.status = 'critical';
         }
 
         console.log('✅ Verificación exitosa simulada');
@@ -535,21 +454,6 @@ export class ApiService {
     try {
       console.log(`🔄 Actualizando estado de brazalete ${wristbandId} a ${status}...`);
       
-      // TODO: Descomentar cuando el endpoint esté listo
-      /*
-      const response = await AuthService.authenticatedRequest('/wristbands/update-status', {
-        method: 'PUT',
-        body: JSON.stringify({ wristbandId, status })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      return { success: result.success };
-      */
-
       // Simular actualización
       await this.mockRequest(null, 300);
 
@@ -570,53 +474,47 @@ export class ApiService {
   }
 
   /**
-   * Obtener estadísticas de la API
+   * Obtener estadísticas generales usando el controlador de checadores
    */
-  static getApiStats(): {
-    requestCount: number;
-    lastRequestTime: number;
-    uptime: number;
-  } {
-    return {
-      requestCount: this.requestCount,
-      lastRequestTime: this.lastRequestTime,
-      uptime: Date.now() - this.lastRequestTime
-    };
-  }
-
-  /**
-   * Verificar estado de salud de la API
-   */
-  static async checkApiHealth(): Promise<{ healthy: boolean; latency?: number; error?: string }> {
-    const startTime = Date.now();
-    
+  static async getStatistics() {
     try {
-      // TODO: Descomentar cuando el endpoint esté listo
-      /*
-      const response = await this.makeRequest(`${API_CONFIG.baseURL}/health`);
-      const latency = Date.now() - startTime;
+      console.log('📈 Obteniendo estadísticas generales...');
       
+      const result = await CheckersController.getStatistics();
+      
+      if (result.success && result.data) {
+        console.log('✅ Estadísticas obtenidas:', result.data);
+        return result.data;
+      }
+      
+      console.warn('⚠️ Error al obtener estadísticas reales, usando datos simulados:', result.error);
+      
+      // Fallback a estadísticas simuladas
       return {
-        healthy: response.success,
-        latency,
-        error: response.error
-      };
-      */
-      
-      // Simular verificación de salud
-      await this.mockRequest(null, 100);
-      const latency = Date.now() - startTime;
-      
-      return {
-        healthy: true,
-        latency
+        totalCheckers: 3,
+        totalScanned: 244,
+        totalVerified: 235,
+        totalRejected: 9,
+        averagePerformance: 96
       };
       
     } catch (error) {
-      return {
-        healthy: false,
-        error: this.getErrorMessage(error)
-      };
+      console.error('❌ Error al obtener estadísticas:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Verificar salud de la API
+   */
+  static async healthCheck(): Promise<boolean> {
+    try {
+      const isCheckersHealthy = await CheckersController.healthCheck();
+      const isAuthHealthy = await AuthService.checkNetworkConnection();
+      
+      return isCheckersHealthy && isAuthHealthy;
+    } catch {
+      return false;
     }
   }
 }
